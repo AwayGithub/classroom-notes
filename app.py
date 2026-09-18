@@ -286,6 +286,22 @@ async def get_session(sid: str):
     return session(sid)
 
 
+class RenameSession(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+
+
+@app.post('/api/sessions/{sid}/title')
+async def rename_session(sid: str, value: RenameSession):
+    session(sid)
+    lock = store.locks.get(sid)
+    if lock and lock.locked():
+        raise HTTPException(409, '这节课正在整理笔记，请等待保存后修改名称')
+    try:
+        return store.rename(sid, value.title)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
 @app.post('/api/sessions/{sid}/transcript')
 async def save_transcript(sid: str, value: Transcript):
     session(sid)

@@ -77,6 +77,16 @@ class Store:
         title = '' if body.lstrip().startswith('# ') else f"# {item['title']}\n\n"
         return f"{title}{body}\n\n---\n\n## 转录原文\n\n{item['transcript']}\n"
 
+    def rename(self, sid, title):
+        item = self.get(sid)
+        title = title.strip()
+        if not title or len(title)>200:
+            raise ValueError('课程名称需为 1 至 200 个字符')
+        replacement = dict(item, title=title)
+        self.save(replacement)
+        item.update(replacement)
+        return item
+
     def transcript(self, sid, text):
         item = self.get(sid)
         item['transcript'] = text

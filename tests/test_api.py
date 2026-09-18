@@ -78,6 +78,30 @@ class ApiTests(unittest.TestCase):
                 self.assertEqual(r.status_code,409,r.text)
         self.assertEqual(self.client.post('/api/sessions/trash',json={'session_ids':[a['id']]}).status_code,403)
 
+    def test_rename_preserves_content_and_survives_reload(self):
+        a=module.store.create('旧名称');module.store.transcript(a['id'],'原文')
+        a.update(notes='# 原笔记',processed='原文',revision=3);module.store.save(a)
+        original=dict(a)
+        r=self.client.post('/api/sessions/'+a['id']+'/title',json={'title':'  新课程名称  '},headers=self.headers)
+        self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(r.json(),dict(original,title='新课程名称'))
+        module.store.cache.clear()
+        self.assertEqual(module.store.get(a['id'])['title'],'新课程名称')
+        self.assertEqual(module.store.list()[0]['title'],'新课程名称')
+
+    def test_rename_rejects_invalid_deleted_busy_and_cross_site(self):
+        import asyncio
+        a=module.store.create('保留名称');url='/api/sessions/'+a['id']+'/title'
+        for title in ('   ', '长'*201):
+            self.assertIn(self.client.post(url,json={'title':title},headers=self.headers).status_code,(400,422))
+        lock=asyncio.Lock();asyncio.run(lock.acquire());module.store.locks[a['id']]=lock
+        self.assertEqual(self.client.post(url,json={'title':'新名'},headers=self.headers).status_code,409)
+        lock.release()
+        self.assertEqual(self.client.post(url,json={'title':'新名'}).status_code,403)
+        module.store.set_deleted([a['id']],True)
+        self.assertEqual(self.client.post(url,json={'title':'新名'},headers=self.headers).status_code,404)
+        self.assertEqual(module.store.get(a['id'],include_deleted=True)['title'],'保留名称')
+
     def test_session_save_export_and_missing_api(self):
         r = self.client.post('/api/sessions', json={'title': '测试课堂'}, headers=self.headers)
         self.assertEqual(r.status_code, 200)
