@@ -46,6 +46,7 @@ class Store:
         item = dict(id=uuid4().hex, title=title.strip() or '合并课堂',
                     created=datetime.now().isoformat(timespec='seconds'),
                     transcript=text, processed='', notes='', revision=0, updated='',
+                    subject=sources[0].get('subject','未分类') if len({s.get('subject','未分类') for s in sources})==1 else '未分类',
                     sources=[dict(id=i['id'], title=i['title'], created=i['created'],
                                   characters=len(i['transcript'])) for i in sources])
         self.save(item)

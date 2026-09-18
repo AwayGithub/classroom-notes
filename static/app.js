@@ -16,7 +16,7 @@ function syncControls() {
   $('history').disabled=recording||busy;
   $('mic').disabled=recording||connecting||stopping||finishing;
   $('refreshMic').disabled=$('mic').disabled;
-  $('title').disabled=recording||busy;
+  $('title').disabled=recording||busy;$('courseSubject').disabled=recording||busy;
   $('update').disabled=!current||busy;
   $('speechModel').disabled=recording||busy||!speechModelsLoaded;
   $('switchModel').disabled=recording||busy||!speechModelsLoaded||!$('speechModel').value||$('speechModel').value===activeSpeechId;
@@ -81,8 +81,8 @@ async function api(path, data) {
 }
 function showSession(item) {
   current=item; latest=item.transcript;
-  $('title').value=item.title; $('transcript').textContent=latest||'等待老师开始讲课…';
-  renderNotes($('notes'),item.notes||'等待转录内容。配置 API 后可开始整理。');
+  $('title').value=item.title;$('courseSubject').value=item.subject||'未分类'; $('transcript').classList[latest.trim()?'remove':'add']('empty-transcript');$('transcript').textContent=latest||'等待老师开始讲课…';
+  $('notes').classList[item.notes?.trim()?'remove':'add']('empty-notes');renderNotes($('notes'),item.notes||'等待转录内容。配置 API 后可开始整理。');
   $('noteStatus').textContent=item.updated?`第 ${item.revision} 版 · ${item.updated.replace('T',' ')}`:'等待课堂内容';
   $('export').disabled=false; $('update').disabled=false;
   paused=false; syncControls();
@@ -113,7 +113,7 @@ async function update(force=false) {
   try {
     await save();
     const sid=current.id, item=await api(`sessions/${sid}/notes`,{force});
-    if(current?.id===sid){renderNotes($('notes'),item.notes||'等待更多课堂内容');$('noteStatus').textContent=item.updated?`第 ${item.revision} 版 · ${item.updated.replace('T',' ')}`:'等待已确认的转录';}
+    if(current?.id===sid){$('notes').classList[item.notes?.trim()?'remove':'add']('empty-notes');renderNotes($('notes'),item.notes||'等待更多课堂内容');$('noteStatus').textContent=item.updated?`第 ${item.revision} 版 · ${item.updated.replace('T',' ')}`:'等待已确认的转录';}
     message('笔记已更新，课程记录已保存在本机。');
   } catch(e) {message(e.message,true);$('noteStatus').textContent='整理未完成 · 保留上一版 · 可重试';}
   finally {updating=false;syncControls();}
@@ -166,7 +166,7 @@ async function start(resume=false) {
     const mime=['audio/webm;codecs=opus','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));
     if(!mime)throw new Error('请使用最新版 Edge 或 Chrome 打开本页面');
     stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:$('mic').value?{exact:$('mic').value}:undefined,channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-    if(!resume)showSession(await api('sessions',{title:$('title').value.trim()||'课堂笔记 '+new Date().toLocaleString()}));
+    if(!resume)showSession(await api('sessions',{title:$('title').value.trim()||'课堂笔记 '+new Date().toLocaleString(),subject:$('courseSubject').value.trim()||'未分类'}));
     segmentBase=latest;
     segmentLabel=segmentBase?`\n\n【续录开始：${new Date().toLocaleString()}；以下时间戳从本段起算】\n`:'';
     recording=true;paused=false;pauseRequested=false;started=Date.now();$('partial').textContent='';
@@ -184,7 +184,7 @@ async function start(resume=false) {
         if(Array.isArray(data.lines)){
           const segment=data.lines.filter(l=>l.text&&l.speaker!==-2).map(l=>`[${l.start}] ${l.text}`).join('\n');
           latest=segmentBase+(segment?segmentLabel+segment:'');
-          $('transcript').textContent=latest||'正在识别…';
+          $('transcript').classList[latest.trim()?'remove':'add']('empty-transcript');$('transcript').textContent=latest||'正在识别…';
           $('partial').textContent=data.buffer_transcription||'';
           const body=$('transcript').parentElement;body.scrollTop=body.scrollHeight;
           backup();
@@ -233,7 +233,7 @@ $('history').onchange=async()=>{
     const rescue=localStorage.getItem('classroom-rescue-'+current.id);
     if(rescue&&rescue!==latest){
       if(rescue.startsWith(latest)){
-        latest=rescue;$('transcript').textContent=rescue;await save();message('已恢复浏览器尚未保存的后续转录。');
+        latest=rescue;$('transcript').classList.remove('empty-transcript');$('transcript').textContent=rescue;await save();message('已恢复浏览器尚未保存的后续转录。');
       }else if(latest.startsWith(rescue)){
         backup();message('已读取本机较新的完整课程记录。');
       }else{

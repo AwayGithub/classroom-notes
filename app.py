@@ -34,10 +34,16 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel, Field
 from notes import Store, atomic_write, update_notes
 from note_writer import compose_notes
+from knowledge import SubjectStore, subject_name, migrate, search, answer, detect_questions
+import asyncio
 from speech_control import SpeechControl, SpeechActivity, SwitchError
 
 CONFIG_FILE = ROOT / 'config.json'
-store = Store(ROOT / 'data' / 'sessions')
+STORAGE_FILE = ROOT / 'storage.json'
+def storage_root():
+    return Path(json.loads(STORAGE_FILE.read_text(encoding='utf-8'))['path']) if STORAGE_FILE.exists() else ROOT / 'data' / 'sessions'
+store = SubjectStore(storage_root())
+qa_locks = {}
 engine = None
 speech = SpeechControl(ROOT, BACKEND, MODEL, DEVICE)
 
@@ -113,6 +119,7 @@ class Settings(BaseModel):
 
 class NewSession(BaseModel):
     title: str = Field(default='课堂笔记', max_length=200)
+    subject: str = Field(default='未分类', max_length=80)
 
 
 class Transcript(BaseModel):
@@ -227,13 +234,18 @@ async def test_api():
 
 
 @app.get('/api/sessions')
-async def list_sessions():
-    return store.list()
+async def list_sessions(q: str = '', subject: str = ''):
+    if len(q)>300: raise HTTPException(400, '关键词最多 300 字')
+    return search(store,q,subject)
 
 
 @app.post('/api/sessions')
 async def new_session(value: NewSession):
-    return store.create(value.title)
+    try:
+        name=subject_name(value.subject)
+        return store.create(value.title,name) if isinstance(store,SubjectStore) else store.create(value.title)
+    except ValueError as exc:
+        raise HTTPException(400,str(exc))
 
 
 class MergeRequest(BaseModel):
@@ -256,8 +268,8 @@ class BatchSessions(BaseModel):
 
 
 @app.get('/api/trash')
-async def trash_sessions():
-    return store.list(deleted=True)
+async def trash_sessions(q: str = '',subject: str = ''):
+    return search(store,q[:300],subject,deleted=True)
 
 
 async def change_deleted(value, deleted):
@@ -330,6 +342,103 @@ async def export(sid: str):
     item = session(sid)
     return Response(store.markdown(item), media_type='text/markdown; charset=utf-8',
                     headers={'Content-Disposition': f'attachment; filename="classroom-{sid[:8]}.md"'})
+
+
+@app.get('/api/knowledge/settings')
+async def knowledge_settings():
+    subjects=store.subjects() if isinstance(store,SubjectStore) else sorted({r.get('subject','未分类') for r in store.list()})
+    return dict(path=str(store.root.resolve()),recommended_path=r'E:\Create\课堂知识库',subjects=subjects or ['未分类'])
+
+
+class StorageSelection(BaseModel):
+    path: str = Field(min_length=1,max_length=1000)
+
+
+@app.post('/api/knowledge/storage')
+async def select_storage(value: StorageSelection):
+    global store
+    if speech.active_recordings or speech.note_jobs or speech.switching:
+        raise HTTPException(409,'请先暂停录音并等待笔记与问答完成，再迁移知识库')
+    try:
+        candidate=migrate(store,value.path.strip())
+        atomic_write(STORAGE_FILE,json.dumps({'path':str(candidate.root.resolve())},ensure_ascii=False,indent=2))
+        store=candidate
+        return await knowledge_settings()
+    except (ValueError,OSError) as exc:
+        raise HTTPException(400,'迁移未完成，原知识库保留：'+str(exc))
+
+
+class SubjectSelection(BaseModel):
+    subject: str = Field(min_length=1,max_length=80)
+
+
+@app.post('/api/knowledge/subjects')
+async def create_subject(value: SubjectSelection):
+    try:
+        name=store.create_subject(value.subject)
+        return dict(subject=name,subjects=store.subjects())
+    except (ValueError,OSError) as exc:
+        raise HTTPException(400,str(exc))
+
+
+@app.post('/api/sessions/{sid}/subject')
+async def set_subject(sid: str,value: SubjectSelection):
+    session(sid)
+    if speech.note_jobs or speech.active_recordings:
+        raise HTTPException(409,'请等待录音、笔记与问答结束后调整科目')
+    try:
+        return store.assign(sid,value.subject)
+    except (ValueError,OSError) as exc:
+        raise HTTPException(400,str(exc))
+
+
+class QuestionRequest(BaseModel):
+    question: str = Field(min_length=1,max_length=1000)
+
+
+@app.get('/api/sessions/{sid}/questions')
+async def questions(sid: str):
+    return session(sid).get('qa',[])
+
+
+@app.post('/api/sessions/{sid}/ask')
+async def ask_question(sid: str,value: QuestionRequest):
+    session(sid)
+    if not value.question.strip():raise HTTPException(400,'请输入问题')
+    if speech.switching:raise HTTPException(409,'请等待模型切换完成')
+    lock=qa_locks.setdefault(sid,asyncio.Lock())
+    if lock.locked():raise HTTPException(409,'本课问答正在处理，请稍候')
+    speech.note_jobs+=1
+    try:
+        async with lock:return await answer(store,sid,value.question.strip(),request_completion)
+    finally:speech.note_jobs-=1
+
+
+@app.post('/api/sessions/{sid}/detect-questions')
+async def identify_questions(sid: str):
+    session(sid)
+    if speech.switching:raise HTTPException(409,'请等待模型切换完成')
+    lock=qa_locks.setdefault(sid,asyncio.Lock())
+    if lock.locked():return dict(busy=True)
+    speech.note_jobs+=1
+    try:
+        async with lock:return dict(items=await detect_questions(store,sid,request_completion))
+    except (ValueError,TypeError) as exc:
+        raise HTTPException(502,'问题识别响应无法解析，请稍后重试')
+    finally:speech.note_jobs-=1
+
+
+class QuestionAction(BaseModel):
+    id: str
+
+
+@app.post('/api/sessions/{sid}/questions/dismiss')
+async def dismiss_question(sid: str,value: QuestionAction):
+    item=session(sid)
+    for entry in item.get('qa',[]):
+        if entry['id']==value.id:entry['dismissed']=True
+    store.save(item)
+    return dict(ok=True)
 
 
 app.mount('/static', StaticFiles(directory=ROOT / 'static'), name='static')

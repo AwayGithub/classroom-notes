@@ -22,3 +22,5 @@ requirements-*-installed.txt
 requirements-installed.txt
 docs/
 .pytest_cache/
+
+storage.json

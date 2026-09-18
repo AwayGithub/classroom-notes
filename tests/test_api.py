@@ -102,6 +102,25 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.client.post(url,json={'title':'新名'},headers=self.headers).status_code,404)
         self.assertEqual(module.store.get(a['id'],include_deleted=True)['title'],'保留名称')
 
+    def test_knowledge_api_subject_search_answer_and_storage(self):
+        from knowledge import SubjectStore
+        with patch.object(module,'store',SubjectStore(Path(self.temp.name)/'knowledge')), patch.object(module,'STORAGE_FILE',Path(self.temp.name)/'storage.json'):
+            a=self.client.post('/api/sessions',json={'title':'第一讲','subject':'民法'},headers=self.headers).json()
+            sid=a['id'];module.store.transcript(sid,'合同成立需要双方意思表示一致。')
+            results=self.client.get('/api/sessions',params={'q':'意思表示','subject':'民法'}).json()
+            self.assertEqual(results[0]['id'],sid);self.assertTrue(results[0]['hits'])
+            async def fake(system,material):return '双方意思表示一致。[1]'
+            with patch.object(module,'request_completion',fake):
+                result=self.client.post('/api/sessions/'+sid+'/ask',json={'question':'合同成立需要什么？'},headers=self.headers)
+                self.assertEqual(result.status_code,200,result.text);self.assertTrue(result.json()['sources'])
+            self.assertEqual(len(self.client.get('/api/sessions/'+sid+'/questions').json()),1)
+            changed=self.client.post('/api/sessions/'+sid+'/subject',json={'subject':'合同法'},headers=self.headers)
+            self.assertEqual(changed.status_code,200,changed.text)
+            response=self.client.post('/api/knowledge/storage',json={'path':str(Path(self.temp.name)/'moved')},headers=self.headers)
+            self.assertEqual(response.status_code,200,response.text)
+            self.assertEqual(module.store.get(sid)['subject'],'合同法')
+            self.assertEqual(module.store.get(sid)['transcript'],'合同成立需要双方意思表示一致。')
+
     def test_session_save_export_and_missing_api(self):
         r = self.client.post('/api/sessions', json={'title': '测试课堂'}, headers=self.headers)
         self.assertEqual(r.status_code, 200)
@@ -179,6 +198,15 @@ class ApiTests(unittest.TestCase):
             saved = self.client.get(endpoint).json()
             self.assertEqual(saved['notes'], second.json()['notes'])
             self.assertEqual(saved['processed'], '极限与连续')
+
+    def test_create_empty_subject_api(self):
+        from knowledge import SubjectStore
+        with tempfile.TemporaryDirectory() as tmp, patch.object(module,'store',SubjectStore(Path(tmp))):
+            response=self.client.post('/api/knowledge/subjects',json={'subject':'线性代数'},headers=self.headers)
+            self.assertEqual(response.status_code,200)
+            self.assertIn('线性代数',self.client.get('/api/knowledge/settings').json()['subjects'])
+            self.assertTrue((Path(tmp)/'线性代数').is_dir())
+            self.assertEqual(self.client.post('/api/knowledge/subjects',json={'subject':'../bad'},headers=self.headers).status_code,400)
 
 if __name__ == '__main__':
     unittest.main()
