@@ -1,0 +1,8 @@
+-r requirements.txt
+torch==2.8.0
+torchaudio==2.8.0
+transformers==4.57.6
+qwen-asr==0.0.6
+huggingface-hub==0.36.2
+-e ./WhisperLiveKit/third_party/qwen3-asr-causal[streaming]
+-e ./WhisperLiveKit

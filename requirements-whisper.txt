@@ -1,0 +1,5 @@
+-r requirements.txt
+-e ./WhisperLiveKit
+nvidia-cublas-cu12
+nvidia-cudnn-cu12
+nvidia-cuda-nvrtc-cu12

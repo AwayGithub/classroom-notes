@@ -1,0 +1,5 @@
+-r requirements.txt
+numpy==1.26.4
+funasr==1.4.14
+modelscope==1.40.1
+-e ./WhisperLiveKit

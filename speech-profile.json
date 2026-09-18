@@ -1,0 +1,5 @@
+{
+    "backend":  "qwen3-streaming",
+    "model":  "1.7B",
+    "device":  "cuda"
+}
