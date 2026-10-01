@@ -46,7 +46,7 @@ class Store:
         item = dict(id=uuid4().hex, title=title.strip() or '合并课堂',
                     created=datetime.now().isoformat(timespec='seconds'),
                     transcript=text, processed='', notes='', revision=0, updated='',
-                    subject=sources[0].get('subject','未分类') if len({s.get('subject','未分类') for s in sources})==1 else '未分类',
+                    subject=sources[0].get('subject','已归档') if len({s.get('subject','已归档') for s in sources})==1 else '已归档',
                     sources=[dict(id=i['id'], title=i['title'], created=i['created'],
                                   characters=len(i['transcript'])) for i in sources])
         self.save(item)
@@ -110,6 +110,24 @@ class Store:
             item.update(replacement)
             if not deleted: item.pop('deleted_at', None)
         return dict(count=len(items))
+
+    def purge(self, sid):
+        item = self.get(sid, include_deleted=True)
+        if self.locks.get(sid) and self.locks[sid].locked():
+            raise ValueError('这节课正在整理，请稍后再删除')
+        (self.root / f'{sid}.json').unlink(missing_ok=True)
+        (self.root / f'{sid}.md').unlink(missing_ok=True)
+        history = self.root / 'history' / sid
+        if history.exists():
+            for path in sorted(history.rglob('*'), key=lambda p: len(p.parts), reverse=True):
+                if path.is_file():
+                    path.unlink()
+                elif path.is_dir():
+                    path.rmdir()
+            history.rmdir()
+        self.cache.pop(sid, None)
+        self.locks.pop(sid, None)
+        return dict(id=sid)
 
     def list(self, deleted=False):
         items = [self.get(p.stem, include_deleted=True) for p in self.root.glob('*.json')]

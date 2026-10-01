@@ -1,0 +1,44 @@
+#workspaceSettings .settings-pages{padding:26px 30px 0;display:flex;flex-direction:column}
+#workspaceSettings .settings-pages>section{flex:1 0 auto;display:flex;flex-direction:column;box-sizing:border-box}
+#workspaceSettings :is(#storageForm,#settingsForm){flex:1;display:flex;flex-direction:column;box-sizing:border-box}
+#workspaceSettings :is(#storageForm,#settingsForm)>label{margin:12px 0 0;line-height:1.5}
+#workspaceSettings :is(#storageForm,#settingsForm)>p:not(.settings-field-help){line-height:1.7;margin:10px 0 12px}
+#workspaceSettings .storage-path-picker{gap:12px;align-items:stretch;margin-top:8px}
+#workspaceSettings .storage-path-picker input{margin:0}
+#workspaceSettings .settings-field-help{font-size:13px;line-height:1.7;color:var(--muted);margin:10px 0 24px;max-width:65ch}
+#workspaceSettings .settings-form-footer{margin-top:auto;padding:18px 0 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--line);background:var(--paper)}
+#workspaceSettings .settings-form-footer .actions{margin:0;flex-shrink:0;justify-content:flex-end;gap:10px}
+#workspaceSettings .settings-form-footer [role=status]{margin:0;line-height:1.6;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+#workspaceSettings .settings-form-footer [role=status]:empty{display:none}
+#workspaceSettings .settings-form-footer .actions:first-child,#workspaceSettings .settings-form-footer [role=status]:empty+.actions{margin-left:auto}
+@media(max-width:620px){#workspaceSettings .settings-pages{padding:20px 20px 0}#workspaceSettings .settings-form-footer{align-items:stretch;flex-direction:column;gap:12px}#workspaceSettings .settings-form-footer .actions{flex-wrap:wrap}#workspaceSettings .storage-path-picker{flex-wrap:wrap}}
+
+/* Shared typography for all three settings pages. */
+html[data-theme] #workspaceSettings {
+  font-family:"Segoe UI","Microsoft YaHei",sans-serif;
+  font-size:14px;
+}
+html[data-theme] #workspaceSettings :is(h2,p,label,input,select,button,[role=status],#speechStatus) {
+  font-family:inherit!important;
+  letter-spacing:normal;
+}
+html[data-theme] #workspaceSettings h2 {
+  font-size:21px!important;
+  font-weight:650!important;
+  line-height:1.5;
+}
+html[data-theme] #workspaceSettings :is(label,input,select) {
+  font-size:15px!important;
+  font-weight:400!important;
+  line-height:1.5!important;
+}
+html[data-theme] #workspaceSettings button:not(.settings-dismiss) {
+  font-size:15px!important;
+  font-weight:500!important;
+  line-height:1.5!important;
+}
+html[data-theme] #workspaceSettings :is(p,[role=status],#speechStatus) {
+  font-size:14px!important;
+  font-weight:400!important;
+  line-height:1.7!important;
+}

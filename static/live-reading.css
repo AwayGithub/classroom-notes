@@ -1,0 +1,27 @@
+/* Live reading follows the document, in every theme and reading mode. */
+html[data-theme] body.live-page .workspace > .panel {
+  height:auto!important;
+  max-height:none!important;
+}
+html[data-theme] body.live-page .workspace > .panel > .panelbody {
+  height:auto!important;
+  max-height:none!important;
+  min-height:350px;
+  flex:1 0 auto!important;
+  overflow:visible!important;
+}
+/* Live course labels and progress remain legible beside the reading content. */
+html[data-theme] .live-page .history-field > span,
+html[data-theme] .live-page .titlefield > span,
+html[data-theme] .live-page .subject-field,
+html[data-theme] .live-page #recordStatus,
+html[data-theme] .live-page #noteStatus {
+  font-size:15px;
+  line-height:1.5;
+}
+.live-page #message:empty {
+  display:none;
+}
+.live-page .status-row {
+  justify-content:flex-end;
+}

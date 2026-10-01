@@ -1,0 +1,102 @@
+/* Course outline typography across the existing reading themes. */
+/* Keep the reading actions aligned with the text measure. */
+html[data-theme] .library-page .reader-toolbar {
+  width:100%;
+  max-width:76ch;
+  box-sizing:border-box;
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  font-size:16px;
+}
+html[data-theme=folio] .library-page .reader-toolbar {
+  font-family:'Georgia','SimSun',serif;
+  font-size:17px;
+}
+html[data-theme] .library-page .reader-toolbar #rewrite {margin-left:auto;flex-shrink:0}
+html[data-theme] .library-page.focus-view .reader-toolbar {max-width:none}
+@media(max-width:800px) {
+  html[data-theme=folio] .library-page .reader-toolbar {font-size:16px}
+}
+html[data-theme] .reading-outline h2 {
+  font-size:20px;
+  line-height:1.5;
+  font-weight:600;
+  color:var(--ink);
+}
+html[data-theme] .reading-outline :is(a,p) {
+  font-size:16px;
+  line-height:1.65;
+}
+.outline-resizer { display:none; }
+.is-outline-resizing,.is-outline-resizing * {
+  cursor:col-resize!important;
+  user-select:none!important;
+}
+/* The book theme keeps its outline on the right; other themes retain their layout. */
+@media(min-width:1151px) {
+  html[data-theme=folio] .library-page[data-surface=reader]:not(.focus-view):not(.qa-inline):not(.qa-full) .library-grid {
+    grid-template-columns:minmax(0,1fr) 12px var(--outline-width,260px);
+    gap:0;
+  }
+  html[data-theme=folio] .library-page[data-surface=reader]:not(.focus-view):not(.qa-inline):not(.qa-full) .reading-outline {
+    grid-column:3;
+    grid-row:1;
+    margin-left:0;
+    padding-left:16px;
+    border-left:0;
+    min-width:0;
+    box-sizing:border-box;
+    max-height:calc(100dvh - 70px);
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:var(--line) transparent;
+  }
+  html[data-theme=folio] .library-page[data-surface=reader]:not(.focus-view):not(.qa-inline):not(.qa-full) .outline-resizer {
+    display:block;
+    grid-column:2;
+    grid-row:1;
+    position:relative;
+    align-self:stretch;
+    cursor:col-resize;
+    touch-action:none;
+  }
+  .outline-resizer::after {
+    content:'';
+    position:absolute;
+    top:0;bottom:0;left:5px;
+    width:1px;
+    background:var(--line);
+  }
+  .outline-resizer:hover::after,.outline-resizer:focus-visible::after {
+    width:2px;
+    background:var(--green);
+  }
+  .outline-resizer:focus-visible {
+    outline:2px solid var(--green);
+    outline-offset:2px;
+  }
+}
+
+/* Indent each heading level without shrinking the outline text. */
+html[data-theme] #outlineLinks a[data-heading-level="1"] {padding-left:0;font-weight:650;color:var(--ink)}
+html[data-theme] #outlineLinks a[data-heading-level="2"] {padding-left:16px;font-weight:550;color:var(--ink)}
+html[data-theme] #outlineLinks a[data-heading-level="3"] {padding-left:32px;font-weight:400}
+html[data-theme] button.reader-back-top {
+ position:fixed;right:24px;bottom:24px;z-index:30;
+ width:44px;height:44px!important;min-height:44px!important;padding:10px!important;display:grid;place-items:center;
+ border:1px solid var(--line);border-radius:50%!important;
+ background:var(--paper,#faf9f6);color:var(--ink);
+ box-shadow:0 3px 12px rgba(30,40,30,.12);
+ cursor:pointer;
+}
+html[data-theme] button.reader-back-top[hidden] {display:none}
+.reader-back-top svg {width:22px;height:22px}
+.reader-back-top:hover {background:var(--green);color:#fff}
+.reader-back-top:focus-visible {outline:2px solid var(--green);outline-offset:4px}
+.reader-back-top::after {
+ content:attr(aria-label);position:absolute;right:0;bottom:calc(100% + 10px);
+ padding:6px 10px;border-radius:6px;background:var(--ink);color:var(--paper,#fff);
+ font-size:14px;line-height:1.5;white-space:nowrap;pointer-events:none;
+ opacity:0;visibility:hidden;
+}
+.reader-back-top:hover::after,.reader-back-top:focus-visible::after {opacity:1;visibility:visible}
+@media(max-width:600px) {.reader-back-top {right:16px;bottom:16px}}

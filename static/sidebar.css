@@ -1,0 +1,121 @@
+/* Shared flat subject navigation, based on the approved design-lab sidebar. */
+:root { --sidebar-width:224px; }
+.sidebar { padding:34px 23px 18px; background:#faf9f6; }
+html[data-theme=folio] .sidebar { background:#f2f0e8; }
+html[data-theme=stage] .sidebar { background:#fafafa; }
+.sidebar .brand { padding:0; font-size:32px; line-height:1.3; }
+.sidebar .brand small { margin-top:17px; font-size:13px; line-height:1.7; }
+.sidebar .brand>span:last-child:before { margin-left:69px; }
+.sidebar .nav-caption { display:none; }
+.sidebar nav { margin-top:36px; gap:10px; }
+.sidebar .nav-item { padding:12px 11px; min-height:46px; font-size:16px; color:var(--ink); font-weight:400; }
+.sidebar .nav-item.active { background:transparent; color:var(--ink); font-weight:500; }
+.sidebar .nav-item:hover { background:#eeece5; }
+.sidebar .subject-tree { margin:34px 0 22px; padding:0; }
+.sidebar .tree-caption { padding:0 11px 17px; font-size:12px; color:var(--muted); }
+.sidebar .subject-link { display:block; padding:12px 11px; margin-bottom:7px; border-radius:3px; color:var(--ink); font-size:16px; line-height:1.6; text-decoration:none; overflow-wrap:anywhere; }
+.sidebar .subject-link:hover { background:#efede7; }
+.sidebar .subject-link.selected { background:#eae7df; color:#ac402b; font-weight:650; }
+html[data-theme=stage] .sidebar .subject-link.selected { color:#252528; background:#e7e7ec; }
+html[data-theme=folio] .sidebar .subject-link.selected { color:#425848; background:#dfe3d7; }
+.sidebar .shell-settings { border:0; padding:4px 0 10px; }
+.sidebar .shell-settings summary { padding:9px 11px; }
+.sidebar .sidebar-bottom { padding:15px 11px 0; }
+@media(max-width:1150px) { :root { --sidebar-width:210px; } .sidebar { padding:30px 19px 17px; } }
+@media(max-width:800px) { .sidebar { width:240px; padding:25px 20px 18px; } .sidebar nav { margin-top:0; gap:7px; } .sidebar .subject-tree { margin-top:28px; } }
+
+@media (min-width:801px) and (max-height:820px) {
+ .sidebar { padding-top:25px; padding-bottom:12px; }
+ .sidebar .brand small { margin-top:12px; }
+ .sidebar nav { margin-top:24px; gap:4px; }
+ .sidebar .nav-item { min-height:40px; padding-top:8px; padding-bottom:8px; }
+ .sidebar .subject-tree { margin-top:22px; margin-bottom:12px; }
+ .sidebar .tree-caption { padding-bottom:11px; }
+ .sidebar .subject-link { margin-bottom:4px; padding-top:9px; padding-bottom:9px; }
+ .sidebar .shell-settings { padding-bottom:4px; }
+ .sidebar .sidebar-bottom { padding-top:11px; }
+}
+
+/* Fixed shell geometry: asynchronous subjects cannot compress the brand or navigation. */
+.sidebar .brand, .sidebar nav, .sidebar .shell-settings, .sidebar .sidebar-bottom { flex-shrink:0; }
+.sidebar nav .nav-item, .sidebar nav .nav-item.active { font-weight:400; line-height:1.6; }
+.sidebar .subject-tree { flex:1 1 auto; min-height:0; }
+.sidebar .subjects-loading { margin:0; padding:9px 11px; color:var(--muted); font-size:12px; min-height:43px; }
+
+/* Subject management controls keep a stable footprint in every theme. */
+.sidebar .subject-row { position:relative; }
+.sidebar .subject-row .subject-link { padding-right:40px; }
+.sidebar .subject-options { position:absolute; right:4px; top:6px; width:32px; height:32px; padding:0; border:0; background:transparent; color:var(--muted); font-size:23px; line-height:1; box-shadow:none; border-radius:4px; }
+.sidebar .subject-options:hover,.sidebar .subject-options:focus-visible { color:var(--ink); background:rgba(80,90,70,.12); }
+.subject-manager { width:min(440px,calc(100vw - 40px)); }
+.subject-manager .subject-help { color:var(--muted); font-size:14px; line-height:1.8; }
+.subject-manager .subject-result { color:#a63c2f; font-size:14px; }
+.subject-manager .actions { flex-wrap:wrap; }
+.subject-manager .subject-delete { margin-right:auto; color:#a63c2f; }
+
+/* Compact add action stays in the server-rendered subject heading. */
+.sidebar .tree-caption { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:0 4px 11px 11px; min-height:32px; }
+.sidebar .tree-caption .new-subject { display:inline-flex; align-items:center; justify-content:center; flex:0 0 28px; width:28px; height:28px; min-height:28px; margin:0; padding:0; border:0; border-radius:4px; background:transparent; color:var(--muted); box-shadow:none; }
+.sidebar .tree-caption .new-subject .icon { display:block; width:17px; height:17px; }
+.sidebar .tree-caption .new-subject:hover { background:rgba(80,90,70,.10); color:var(--ink); }
+.sidebar .tree-caption .new-subject:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+.subject-manager [hidden] { display:none!important; }
+.subject-manager .actions { gap:8px; }
+.subject-manager .subject-delete { margin-right:0; }
+.subject-manager .purge-confirm { margin:18px 0; }
+.sidebar .subject-row.reorderable .subject-link { padding-left:25px; }
+.sidebar .subject-drag { position:absolute; left:0; top:10px; width:22px; height:26px; min-height:0; padding:0; border:0; border-radius:3px; box-shadow:none; background:transparent; color:var(--muted); cursor:grab; touch-action:none; font:18px/1 sans-serif; opacity:.5; }
+.sidebar .subject-drag:hover,.sidebar .subject-drag:focus-visible { opacity:1; background:rgba(80,90,70,.1); }
+.sidebar .subject-row.is-dragging { background:rgba(80,90,70,.13); outline:1px dashed var(--muted); border-radius:3px; }
+.sidebar .subject-row.is-dragging .subject-drag { cursor:grabbing; }
+
+.sidebar button.settings-launch { flex-shrink:0; display:flex; align-items:center; gap:10px; width:100%; padding:12px 11px; border:1px solid transparent; border-radius:5px; background:transparent; color:var(--ink); text-align:left; font-size:15px; box-shadow:none; }
+.sidebar button.settings-launch:hover { background:rgba(80,90,70,.09); }
+#workspaceSettings { width:min(850px,calc(100vw - 40px)); max-width:850px; height:min(640px,85dvh); max-height:85dvh; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--paper,#faf9f6); color:var(--ink); overflow:hidden; box-shadow:0 20px 80px #0003; }
+#workspaceSettings::backdrop { background:#18201a66; backdrop-filter:blur(3px); }
+#workspaceSettings .settings-heading { display:flex; align-items:center; justify-content:space-between; padding:24px 28px 20px; border-bottom:1px solid var(--line); }
+#workspaceSettings h2 { margin:0 0 8px; font-size:21px; }
+#workspaceSettings p { font-size:14px; line-height:1.8; color:var(--muted); }
+#workspaceSettings .settings-heading p { margin:0; }
+#workspaceSettings .settings-dismiss { width:34px; height:34px; padding:0; border:0; background:transparent; font-size:26px; }
+#workspaceSettings .settings-layout { display:grid; grid-template-columns:170px minmax(0,1fr); min-height:420px; }
+#workspaceSettings .settings-tabs { display:flex; flex-direction:column; gap:6px; padding:22px 12px; border-right:1px solid var(--line); }
+#workspaceSettings .settings-tabs button { text-align:left; padding:12px; border:0; border-radius:5px; background:transparent; box-shadow:none; color:var(--ink); font-size:14px; }
+#workspaceSettings .settings-tabs [aria-selected=true] { background:rgba(80,100,80,.12); font-weight:600; }
+#workspaceSettings .settings-pages { padding:26px 30px; min-width:0; }
+#workspaceSettings form { margin:0; padding:0; }
+#workspaceSettings label { display:block; margin:18px 0; font-size:14px; color:var(--ink); }
+#workspaceSettings input,#workspaceSettings select { width:100%; margin-top:8px; font-size:14px; }
+#workspaceSettings .panelhead { display:block; min-height:0; margin:0; padding:0; border:0; background:transparent; }
+#workspaceSettings .settings-grid { display:block; padding:0; border:0; background:transparent; }
+#workspaceSettings .input-pair { display:flex; align-items:center; gap:8px; }
+#workspaceSettings .input-pair button { flex-shrink:0; margin-top:8px; }
+#workspaceSettings .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+#workspaceSettings [hidden] { display:none!important; }
+@media(max-width:620px){#workspaceSettings .settings-layout{grid-template-columns:1fr}#workspaceSettings .settings-tabs{flex-direction:row;border-right:0;border-bottom:1px solid var(--line);padding:10px;gap:0}#workspaceSettings .settings-tabs button{flex:1;text-align:center;padding:10px 5px}#workspaceSettings .settings-pages{padding:20px}#workspaceSettings .settings-heading{padding:18px 20px}}
+
+/* Keep the modal shell stable while individual settings pages scroll. */
+#workspaceSettings[open] { display:flex; flex-direction:column; }
+#workspaceSettings .settings-heading { flex:0 0 auto; }
+#workspaceSettings .settings-layout { flex:1 1 0; min-height:0; overflow:hidden; }
+#workspaceSettings .settings-tabs { min-height:0; overflow:auto; }
+#workspaceSettings .settings-pages { min-height:0; overflow:auto; scrollbar-gutter:stable; }
+@media(max-width:620px) { #workspaceSettings .settings-layout { grid-template-rows:auto minmax(0,1fr); } }
+
+
+/* Initial HTML and in-page navigation share one stable label and highlight. */
+html[data-navigation-page] .sidebar nav .nav-item[data-nav] {
+ box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;
+ font-family:inherit;font-size:16px;font-weight:400;line-height:1.6;
+ border:0;box-shadow:none;transform:none;transition:none;background:transparent;color:var(--ink);
+}
+html[data-navigation-page] .sidebar nav .nav-item[data-nav]:hover { background:#eeece5; }
+html { --navigation-active-bg:#eae6dc; }
+html[data-theme=folio] { --navigation-active-bg:#d9dfd2; }
+html[data-theme=stage] { --navigation-active-bg:#e7e7ec; }
+html[data-navigation-page=home] .sidebar nav .nav-item[data-nav=home],
+html[data-navigation-page=live] .sidebar nav .nav-item[data-nav=live],
+html[data-navigation-page=library] .sidebar nav .nav-item[data-nav=library],
+html[data-navigation-page=questions] .sidebar nav .nav-item[data-nav=questions] {
+ background:var(--navigation-active-bg);color:var(--green);
+}

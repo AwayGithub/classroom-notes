@@ -17,7 +17,7 @@ function Start-Selected($wanted) {
     & $shellPath -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'start.ps1') -NoBrowser -StartupTimeoutSeconds 120
     if ($LASTEXITCODE -ne 0) { throw 'Selected speech model did not start.' }
     $health = Invoke-RestMethod 'http://127.0.0.1:8765/api/health' -TimeoutSec 5
-    $modelName = if ($wanted.backend -eq 'qwen3-streaming') { "Qwen3-ASR-$($wanted.model)" } else { $wanted.model }
+    $modelName = if ($wanted.report) { $wanted.report } elseif ($wanted.backend -eq 'qwen3-streaming') { "Qwen3-ASR-$($wanted.model)" } else { $wanted.model }
     if ($health.backend -ne $wanted.backend -or $health.device -ne $wanted.device -or $health.model -ne $modelName) {
         throw 'The running speech model does not match the selected profile.'
     }

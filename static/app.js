@@ -9,8 +9,14 @@ let segmentBase='', segmentLabel='';
 let modelSwitching=false, serverSwitching=false, activeSpeechId='', speechModelsLoaded=false, checkingHealth=false;
 function syncControls() {
   const busy=connecting||stopping||finishing||updating||modelSwitching||serverSwitching;
+  $('start').hidden=Boolean(current);
   $('start').disabled=recording||busy;
+  $('resume').hidden=!current;
   $('resume').disabled=!current||recording||busy;
+  $('start').classList.add('primary');
+  $('resume').classList.toggle('primary',Boolean(current));
+  setButtonLabel($('start'),'新建课程并录音');
+  setButtonLabel($('resume'),'继续这节课');
   $('pause').disabled=!recording||connecting||stopping||finishing;
   $('stop').disabled=(!recording&&!paused)||connecting||stopping||finishing;
   $('history').disabled=recording||busy;
@@ -28,7 +34,7 @@ function showRunningModel(health) {
   serverSwitching=Boolean(health.switching);
   const device=health.device==='cuda'?'GPU':String(health.device||'').toUpperCase();
   $('health').textContent=`${serverSwitching?'正在切换模型':'转录就绪'} · ${health.model} · ${device}`;
-  if(!modelSwitching)$('speechStatus').textContent=serverSwitching?'服务正在切换，请稍候':`实际运行：${health.model} · ${device}。切换前请先暂停录音。`;
+  if(!modelSwitching)$('speechStatus').textContent=serverSwitching?'服务正在切换，请稍候':'';
   syncControls();
 }
 async function refreshHealth(strict=false) {
@@ -79,17 +85,31 @@ async function api(path, data) {
   if(!response.ok) throw new Error(typeof result.detail==='string'?result.detail:'请求失败，请检查填写内容');
   return result;
 }
+function setButtonLabel(button,text) {
+  const label=[...button.childNodes].findLast(node=>node.nodeType===Node.TEXT_NODE);
+  if(label)label.textContent=text;else button.append(text);
+}
+function clearSession() {
+  current=null;latest='';paused=false;
+  $('title').value='';$('history').value='';
+  $('transcript').classList.add('empty-transcript');$('transcript').textContent='开始录音后显示转写。';
+  $('partial').textContent='';
+  $('notes').classList.add('empty-notes');renderNotes($('notes'),'等待转录内容。配置 API 后可开始整理。');
+  $('noteStatus').textContent='等待课堂内容';$('recordStatus').textContent='未打开历史课程，接下来会新建一节课。';
+  $('export').disabled=true;$('update').disabled=true;syncControls();
+}
 function showSession(item) {
   current=item; latest=item.transcript;
-  $('title').value=item.title;$('courseSubject').value=item.subject||'未分类'; $('transcript').classList[latest.trim()?'remove':'add']('empty-transcript');$('transcript').textContent=latest||'等待老师开始讲课…';
+  $('title').value=item.title;$('courseSubject').value=item.subject||'已归档'; $('transcript').classList[latest.trim()?'remove':'add']('empty-transcript');$('transcript').textContent=latest||'等待老师开始讲课…';
   $('notes').classList[item.notes?.trim()?'remove':'add']('empty-notes');renderNotes($('notes'),item.notes||'等待转录内容。配置 API 后可开始整理。');
   $('noteStatus').textContent=item.updated?`第 ${item.revision} 版 · ${item.updated.replace('T',' ')}`:'等待课堂内容';
+  $('recordStatus').textContent=`已打开《${item.title}》，继续录音会写进这一节。`;
   $('export').disabled=false; $('update').disabled=false;
   paused=false; syncControls();
 }
-async function history() {
+async function refreshHistory() {
   const items=await api('sessions');
-  $('history').replaceChildren(new Option('查看历史课程',''));
+  $('history').replaceChildren(new Option('不选历史课程，准备新的一节',''));
   items.forEach(i=>$('history').add(new Option(`${i.created.replace('T',' ').slice(0,16)} · ${i.title}`,i.id)));
   if(current)$('history').value=current.id;
 }
@@ -152,7 +172,7 @@ async function finish(clean=true) {
       await update();
     }else message('转录已保存，可继续录音；配置 API 后可重新整理全文。');
   }else message('转录连接中断，已保存收到的内容。点击“继续录音”可接着当前课程。',true);
-  await history().catch(()=>{});
+  await refreshHistory().catch(()=>{});
   finishing=false;syncControls();
   if(clean&&paused)message('已暂停，麦克风已停止收音。可继续当前课程，也可选择其他历史课程。');
 }
@@ -166,7 +186,7 @@ async function start(resume=false) {
     const mime=['audio/webm;codecs=opus','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));
     if(!mime)throw new Error('请使用最新版 Edge 或 Chrome 打开本页面');
     stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:$('mic').value?{exact:$('mic').value}:undefined,channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-    if(!resume)showSession(await api('sessions',{title:$('title').value.trim()||'课堂笔记 '+new Date().toLocaleString(),subject:$('courseSubject').value.trim()||'未分类'}));
+    if(!resume)showSession(await api('sessions',{title:$('title').value.trim()||'课堂笔记 '+new Date().toLocaleString(),subject:$('courseSubject').value.trim()||'已归档'}));
     segmentBase=latest;
     segmentLabel=segmentBase?`\n\n【续录开始：${new Date().toLocaleString()}；以下时间戳从本段起算】\n`:'';
     recording=true;paused=false;pauseRequested=false;started=Date.now();$('partial').textContent='';
@@ -220,16 +240,17 @@ async function saveSettings() {
   await api('settings',{base_url:$('baseUrl').value.trim(),model:$('model').value.trim(),api_key:$('apiKey').value,interval:Number($('interval').value)});
   config=await api('settings');$('apiKey').value='';$('settingsStatus').textContent='设置已保存到本机。';schedule();
 }
-$('start').onclick=()=>void start(false);$('resume').onclick=()=>void start(true);
+$('start').onclick=()=>{if(current)return;void start(false);};$('resume').onclick=()=>void start(true);
 $('speechModel').onchange=syncControls;$('switchModel').onclick=()=>void switchSpeechModel();
 $('pause').onclick=()=>stop(true);$('stop').onclick=()=>stop(false);
 $('update').onclick=()=>void update(true);$('interval').onchange=schedule;
 $('refreshMic').onclick=()=>void microphones().catch(e=>message(e.message,true));
 $('export').onclick=()=>{if(current)void save().then(()=>{location.href=`/api/sessions/${current.id}/export`;}).catch(e=>message(e.message,true));};
 $('history').onchange=async()=>{
-  if(!$('history').value||recording||stopping||updating||connecting||finishing)return;
+  if(recording||stopping||updating||connecting||finishing)return;
+  if(!$('history').value){clearSession();return;}
   connecting=true;syncControls();
-  try {showSession(await api('sessions/'+$('history').value));$('partial').textContent='';$('recordStatus').textContent='已选课程 · 点击继续录音';
+  try {showSession(await api('sessions/'+$('history').value));$('partial').textContent='';
     const rescue=localStorage.getItem('classroom-rescue-'+current.id);
     if(rescue&&rescue!==latest){
       if(rescue.startsWith(latest)){
@@ -242,11 +263,11 @@ $('history').onchange=async()=>{
     }
   }catch(e){message(e.message,true);}finally{connecting=false;syncControls();}
 };
-$('settingsBtn').onclick=()=>{$('baseUrl').value=config.base_url||'';$('model').value=config.model||'';$('settingsStatus').textContent=config.has_key?'已保存密钥，留空可继续使用。':'';$('settings').showModal();};
-$('closeSettings').onclick=()=>$('settings').close();
+$('settingsBtn').onclick=()=>{$('baseUrl').value=config.base_url||'';$('model').value=config.model||'';$('settingsStatus').textContent=config.has_key?'已保存密钥，留空可继续使用。':'';window.openWorkspaceSettings('api');};
+$('closeSettings').onclick=()=>window.closeWorkspaceSettings();
 $('settingsForm').onsubmit=e=>{e.preventDefault();void saveSettings().catch(e=>$('settingsStatus').textContent=e.message);};
 $('testApi').onclick=async()=>{const btn=$('testApi');btn.disabled=true;try{await saveSettings();$('settingsStatus').textContent='正在测试连接…';await api('settings/test',{});$('settingsStatus').textContent='连接成功，可以开始整理课堂笔记。';}catch(e){$('settingsStatus').textContent=e.message;}finally{btn.disabled=false;}};
 window.addEventListener('beforeunload',e=>{if(recording||stopping||updating||connecting||finishing){backup();e.preventDefault();e.returnValue='';}});
 syncControls();
-(async()=>{try{await refreshHealth(true);config=await api('settings');$('interval').value=config.interval||20;await history();await loadSpeechModels();if(config.model)message('服务已就绪，可以开始上课。');}catch(e){message('服务连接失败：'+e.message,true);}})();
+(async()=>{try{await refreshHealth(true);config=await api('settings');$('interval').value=config.interval||60;await refreshHistory();await loadSpeechModels();const wanted=new URLSearchParams(location.search).get('session');if(wanted){$('history').value=wanted;await $('history').onchange();}document.dispatchEvent(new Event('classroom-ready'));}catch(e){message('服务连接失败：'+e.message,true);}})();
 setInterval(()=>void refreshHealth(),5000);

@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const {init,rightOffset}=require('../static/reader-tools.js');
+const handlers={},events={},calls=[];
+const button={hidden:true,addEventListener:(n,f)=>handlers[n]=f};
+const title={focus:()=>{},setAttribute:()=>{}};
+const body={dataset:{surface:'reader'},classList:{contains:()=>false}};
+const root={scrollY:0,document:{body,getElementById:id=>id==='readerBackTop'?button:title,addEventListener:(n,f)=>events[n]=f},addEventListener:(n,f)=>events[n]=f,matchMedia:()=>({matches:false}),scrollTo:args=>calls.push(args)};
+assert.equal(rightOffset(1600,1200),420);
+assert.equal(rightOffset(390,400),16);
+init(root);
+assert.equal(button.hidden,true);
+root.scrollY=600;events.scroll();assert.equal(button.hidden,false);
+body.dataset.surface='home';events['surface-changed']();assert.equal(button.hidden,true);
+body.dataset.surface='reader';events['surface-changed']();handlers.click();assert.deepEqual(calls.at(-1),{top:0,behavior:'smooth'});
+root.matchMedia=()=>({matches:true});handlers.click();assert.equal(calls.at(-1).behavior,'instant');
+body.classList.contains=()=>true;events['surface-changed']();assert.equal(button.hidden,true);
+console.log('PASS: reader top button visibility, navigation and reduced motion');

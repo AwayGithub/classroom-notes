@@ -1,0 +1,155 @@
+/* Magazine surfaces share one grid; other presentation systems keep their rules. */
+html[data-theme=edition] {
+  --edition-gutter:clamp(24px,3.2vw,64px);
+  --edition-heading:clamp(38px,3.7vw,64px);
+  --edition-section-gap:32px;
+}
+html[data-theme=edition] .topbar {padding-inline:var(--edition-gutter)}
+html[data-theme=edition] main {
+  width:100%;max-width:none;margin-inline:0;
+  padding:48px var(--edition-gutter) 48px;box-sizing:border-box;
+}
+html[data-theme=edition] :is(.page-heading,.qa-page-heading,.magazine-intro) {
+  margin:0 0 var(--edition-section-gap);padding:0;
+}
+html[data-theme=edition] .app-shell :is(.page-heading,.qa-page-heading,.magazine-intro) h1 {
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  font-size:var(--edition-heading);font-weight:750;line-height:1.2;
+  letter-spacing:-.03em;margin:0;color:var(--ink);text-wrap:balance;
+}
+html[data-theme=edition] :is(.page-heading,.qa-page-heading) h1 em {font-style:normal;color:var(--green)}
+html[data-theme=edition] .magazine-intro .intro-action {display:none}
+html[data-theme=edition] .library-page[data-surface=home] #libraryMessage:empty {display:none}
+html[data-theme=edition] .magazine-issue {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:stretch}
+html[data-theme=edition] .cover-story {min-height:340px;padding:32px;box-sizing:border-box;gap:20px}
+html[data-theme=edition] .cover-story h2 {font-size:clamp(32px,3vw,46px);margin:32px 0 0;line-height:1.3}
+html[data-theme=edition] .cover-meta {font-size:14px;line-height:1.7;margin:0;color:#fff1e7}
+html[data-theme=edition] .cover-label {font-size:14px;color:#fff1e7}
+html[data-theme=edition] .cover-story .cover-link {
+  --action-bg:transparent;--action-fg:#fff;--action-line:#e7b6a9;
+  --action-hover-bg:#8e3422;--action-hover-fg:#fff;--action-hover-line:#fff;
+  margin-top:auto;
+}
+html[data-theme=edition] .issue-heading {padding-bottom:16px;min-height:48px;box-sizing:border-box}
+html[data-theme=edition] .issue-heading h2 {font-size:22px;line-height:1.4;margin:0;font-weight:700}
+html[data-theme=edition] .issue-row {min-height:96px;padding:20px 0;gap:20px;box-sizing:border-box}
+html[data-theme=edition] .issue-row strong {font-size:22px;line-height:1.45}
+html[data-theme=edition] .issue-row small {font-size:14px;line-height:1.6}
+html[data-theme=edition] .issue-row time {font-size:13px;font-variant-numeric:tabular-nums}
+html[data-theme=edition] .magazine-closing {margin:28px 0 0;padding-top:20px;gap:24px}
+
+/* Catalog heading and selection share a row; search and scope share the next. */
+html[data-theme=edition] .library-page[data-surface=list] :is(.library-grid,.catalog) {max-width:none;width:100%;margin:0}
+html[data-theme=edition] .library-page[data-surface=list] .catalog {
+  display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:16px 24px;
+}
+html[data-theme=edition] .catalog > :not(.search,.subject-filter,.catalog-heading,.batch-tools) {grid-column:1/-1}
+html[data-theme=edition] .catalog > .catalog-heading {grid-column:1;grid-row:1;padding:0;justify-content:flex-start;gap:16px;min-height:40px}
+html[data-theme=edition] .catalog-heading h2 {font-size:24px;font-weight:650;line-height:1.4}
+html[data-theme=edition] .count-badge {font-size:14px;line-height:1.5;font-variant-numeric:tabular-nums}
+html[data-theme=edition] .catalog > .batch-tools {grid-column:2;grid-row:1;justify-content:flex-end;align-items:center;margin:0;padding:0;border:0}
+html[data-theme=edition] .catalog > .search {grid-column:1;grid-row:2;width:100%;margin:0;align-self:end}
+html[data-theme=edition] .catalog > .subject-filter {grid-column:2;grid-row:2;width:100%;margin:0;align-self:end}
+html[data-theme=edition] .subject-filter .filter-caption {position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-theme=edition] .catalog :is(.search input,.subject-filter select) {height:46px;min-height:46px!important;font-size:16px}
+html[data-theme=edition] #records {border-top:1px solid var(--line);margin-top:4px}
+html[data-theme=edition] .record-row {min-height:96px;padding:20px 12px;gap:20px;box-sizing:border-box}
+html[data-theme=edition] .record-row:has(input:checked) {background:color-mix(in srgb,var(--green) 10%,var(--bg))}
+html[data-theme=edition] .record-row input {width:20px;height:20px;accent-color:var(--green)}
+html[data-theme=edition] .record-open strong {font-size:24px;line-height:1.4;font-weight:650}
+html[data-theme=edition] .record-summary {font-size:14px;line-height:1.65}
+html[data-theme=edition] .catalog #selectionPanel {margin-top:8px}
+
+/* Classroom setup and content remain separate, with related controls grouped. */
+html[data-theme=edition] .live-page .page-heading {display:flex;gap:32px}
+html[data-theme=edition] .history-field {width:min(420px,40%);flex-shrink:0}
+html[data-theme=edition] .record-console {padding:0 24px;background:var(--paper);border:1px solid var(--line)}
+html[data-theme=edition] .session-row {padding:24px 0;gap:24px}
+html[data-theme=edition] .live-tools {margin:24px 0 20px}
+html[data-theme=edition] .live-reading-tabs {gap:8px}
+html[data-theme=edition] .workspace {gap:32px;margin-top:0}
+html[data-theme=edition] .live-page:not(.qa-inline) .workspace > .panel > .panelbody {min-height:240px}
+html[data-theme=edition] .transcript-panel :is(.text,.panelbody) {background:transparent}
+html[data-theme=edition] .notes-panel .panelbody {font-size:16px;line-height:1.9}
+html[data-theme=edition] .notes-content strong {color:#862f24}
+html[data-theme=edition] .notes-content li::marker {color:#862f24}
+html[data-theme=edition] .notes-panel .panelhead h2 .icon {color:#862f24}
+html[data-theme=edition] .live-page .panelhead h2 {font-size:20px;font-weight:650}
+
+/* The composer and answer feed use the same edges and type system. */
+html[data-theme=edition] .qa-full .qa-workbench > #questionsDrawer {border-top:2px solid var(--ink);background:var(--paper)}
+html[data-theme=edition] .qa-full #questionsDrawer > .panelhead {padding:24px 28px 20px}
+html[data-theme=edition] .qa-full #questionInput {background:transparent;min-height:160px;font-size:16px;line-height:1.8}
+html[data-theme=edition] .qa-full .qa-card h3 {font-size:22px;line-height:1.5;margin:20px 0}
+html[data-theme=edition] .qa-card button.qa-collapse:hover {background:var(--green)!important;color:#fff!important;border-color:var(--green)!important}
+html[data-theme=edition] .qa-full .qa-answer {font-size:16px;line-height:1.9;color:var(--ink)}
+html[data-theme=edition] .qa-full .qa-answer :is(h1,h2,h3) {font-family:'Segoe UI','Microsoft YaHei',sans-serif;line-height:1.4;letter-spacing:-.02em}
+html[data-theme=edition] .qa-full .qa-answer h1 {font-size:32px}
+html[data-theme=edition] .qa-full .qa-answer h2 {font-size:26px}
+
+/* Reading uses a narrower text measure inside the shared page grid. */
+html[data-theme=edition] .library-page[data-surface=reader]:not(.qa-inline):not(.focus-view) .library-grid {grid-template-columns:200px minmax(0,1fr);gap:32px}
+html[data-theme=edition] .reader-titlebar {padding-top:0}
+html[data-theme=edition] .reader-titlebar h2 {font-size:clamp(30px,3vw,46px);font-weight:700;margin-bottom:24px}
+html[data-theme=edition] .reader-toolbar {margin-top:24px}
+html[data-theme=edition] .reader .panelbody {font-size:16px;line-height:1.9;max-width:76ch}
+
+@media(min-width:801px) {
+  html[data-theme=edition] .library-page[data-surface=reader]:not(.qa-inline):not(.qa-full):not(.focus-view) .library-grid {
+    grid-template-columns:minmax(0,1fr) 12px var(--outline-width,260px);gap:0;
+  }
+  html[data-theme=edition] .library-page[data-surface=reader]:not(.qa-inline):not(.qa-full):not(.focus-view) .reader {grid-column:1;grid-row:1}
+  html[data-theme=edition] .library-page[data-surface=reader]:not(.qa-inline):not(.qa-full):not(.focus-view) .reading-outline {
+    grid-column:3;grid-row:1;margin-left:0;padding-left:20px;border-left:0;min-width:0;
+    max-height:calc(100dvh - 70px);overflow-y:auto;scrollbar-width:thin;
+  }
+  html[data-theme=edition] .library-page[data-surface=reader]:not(.qa-inline):not(.qa-full):not(.focus-view) .outline-resizer {
+    display:block;grid-column:2;grid-row:1;position:relative;align-self:stretch;
+    cursor:col-resize;touch-action:none;
+  }
+  html[data-theme=edition] .outline-resizer::after {
+    content:'';position:absolute;top:0;bottom:0;left:5px;width:1px;background:var(--line);
+  }
+  html[data-theme=edition] .outline-resizer:is(:hover,:focus-visible)::after {width:2px;background:var(--green)}
+  html[data-theme=edition] .outline-resizer:focus-visible {outline:2px solid var(--green);outline-offset:2px}
+}
+
+@media(max-width:1000px) {
+  html[data-theme=edition] {--edition-gutter:28px;--edition-heading:44px}
+  html[data-theme=edition] .live-page .page-heading {flex-direction:column;align-items:stretch;gap:20px}
+  html[data-theme=edition] .history-field {width:100%;margin:0}
+  html[data-theme=edition] .magazine-issue {grid-template-columns:minmax(0,1fr);gap:28px}
+  html[data-theme=edition] .cover-story {min-height:280px;margin:0}
+}
+@media(max-width:800px) {
+  html[data-theme=edition] .library-page[data-surface=reader]:not(.qa-inline):not(.focus-view) .library-grid {grid-template-columns:minmax(0,1fr);gap:20px}
+}
+@media(max-width:600px) {
+  html[data-theme=edition] {--edition-gutter:20px;--edition-heading:36px;--edition-section-gap:24px}
+  html[data-theme=edition] main {padding-top:28px;padding-bottom:32px}
+  html[data-theme=edition] .topbar {gap:8px;padding-inline:16px}
+  html[data-theme=edition] .topbar > .button {min-width:0;--action-font:14px;padding:8px 10px!important}
+  html[data-theme=edition] .appearance-field .appearance-option {padding-inline:8px!important;font-size:13px!important}
+  html[data-theme=edition] .cover-story {padding:24px;min-height:280px}
+  html[data-theme=edition] .cover-story h2 {margin-top:16px;font-size:32px}
+  html[data-theme=edition] .magazine-closing {margin-top:24px}
+  html[data-theme=edition] .catalog {grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important}
+  html[data-theme=edition] .catalog > .search {grid-column:1/-1;grid-row:2}
+  html[data-theme=edition] .catalog > .subject-filter {grid-column:1/-1;grid-row:3}
+  html[data-theme=edition] .catalog-heading {flex-wrap:wrap;gap:8px!important}
+  html[data-theme=edition] .catalog-heading h2 {font-size:22px}
+  html[data-theme=edition] .count-badge {font-size:13px}
+  html[data-theme=edition] .record-row {padding:18px 0;gap:16px}
+  html[data-theme=edition] .record-open strong {font-size:22px}
+  html[data-theme=edition] .record-console {padding-inline:18px}
+  html[data-theme=edition] .session-row {gap:18px}
+  html[data-theme=edition] .record-actions {width:100%}
+  html[data-theme=edition] .record-actions #start {width:100%}
+  html[data-theme=edition] .live-tools {margin-top:20px}
+  html[data-theme=edition] .live-reading-tabs {gap:4px}
+  html[data-theme=edition] .live-reading-tabs button {--action-font:14px;padding:8px 10px!important}
+  html[data-theme=edition] .qa-full #questionsDrawer > .panelhead {padding:20px}
+  html[data-theme=edition] .qa-full .qa-card h3 {font-size:20px}
+  html[data-theme=edition] .qa-full .qa-answer h1 {font-size:28px}
+  html[data-theme=edition] .qa-full .qa-answer h2 {font-size:24px}
+}

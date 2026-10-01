@@ -9,6 +9,7 @@ from notes import atomic_write
 MODELS = [
     dict(id='qwen-1.7b', label='Qwen3-ASR-1.7B · GPU', backend='qwen3-streaming', model='1.7B', device='cuda', environment='.venv-qwen'),
     dict(id='qwen-0.6b', label='Qwen3-ASR-0.6B · GPU', backend='qwen3-streaming', model='0.6B', device='cuda', environment='.venv-qwen'),
+    dict(id='r2t2', label='Confucius4-R2T2 · GPU', backend='qwen3-streaming', model='Confucius4-R2T2', device='cuda', environment='.venv-qwen', folder='Confucius4-R2T2', report='Confucius4-R2T2'),
     dict(id='sensevoice', label='SenseVoiceSmall · CPU', backend='funasr', model='SenseVoiceSmall', device='cpu', environment='.venv-sensevoice'),
     dict(id='whisper-turbo', label='Whisper large-v3-turbo · GPU', backend='faster-whisper', model='large-v3-turbo', device='cuda', environment='.venv'),
 ]
@@ -29,9 +30,9 @@ class SpeechControl:
 
     def running(self):
         found = next((m for m in MODELS if all(m[k] == self.current[k] for k in ('backend', 'model', 'device'))), {})
-        name = self.current['model']
-        if self.current['backend'] == 'qwen3-streaming':
-            name = 'Qwen3-ASR-' + name
+        name = found.get('report') or self.current['model']
+        if not found.get('report') and self.current['backend'] == 'qwen3-streaming':
+            name = 'Qwen3-ASR-' + self.current['model']
         return dict(self.current, id=found.get('id', ''), model=name)
 
     def available(self, item):
@@ -40,7 +41,7 @@ class SpeechControl:
         if item['backend'] == 'funasr':
             return (self.root / 'models/SenseVoiceSmall/model.pt').is_file()
         if item['backend'] == 'qwen3-streaming':
-            folder = self.root / 'models' / ('Qwen3-ASR-' + item['model'])
+            folder = self.root / 'models' / item.get('folder', 'Qwen3-ASR-' + item['model'])
             if not (folder / 'config.json').is_file():
                 return False
             index = folder / 'model.safetensors.index.json'
@@ -87,7 +88,7 @@ class SpeechControl:
         except (OSError, ValueError):
             raise SwitchError('无法核对服务进程，请通过启动脚本启动服务', 503)
         job = dict(id=uuid4().hex, target_id=model_id, expected_pid=expected_pid,
-                   target={k: item[k] for k in ('backend', 'model', 'device')},
+                   target={k: item[k] for k in ('backend', 'model', 'device', 'folder', 'report') if k in item},
                    previous=dict(self.current), status='switching')
         path = self.root / 'logs/speech-switch.json'
         self.switching = True

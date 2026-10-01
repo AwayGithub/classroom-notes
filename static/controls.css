@@ -1,0 +1,224 @@
+/* Action system: solid, outlined, and quiet. Loaded last on every production page.
+   Visual properties are authoritative to replace legacy theme/id overrides;
+   page layout, visibility, controller IDs, and recording behavior remain owned by their surfaces. */
+:root {
+ --action-radius:6px;
+ --action-height:40px;
+ --action-font:15px;
+ --action-ease:cubic-bezier(.2,.7,.2,1);
+ --action-duration:160ms;
+}
+/* Content cards and navigation keep their existing geometry. */
+html[data-theme] :where(button,a.button,a.icon-button,a.text-button,a.cover-link):not(:where(.record-open,.issue-row,.product-note,.product-course,.course-book,.nav-item,.subject-drag,.appearance-option,.book-action)) {
+ --action-bg:var(--paper);
+ --action-fg:var(--ink);
+ --action-line:var(--control-border,var(--line));
+ --action-hover-bg:color-mix(in srgb,var(--green) 7%,var(--paper));
+ --action-hover-line:color-mix(in srgb,var(--green) 45%,var(--line));
+ --action-hover-fg:var(--ink);
+ align-items:center!important;justify-content:center;gap:8px!important;
+ box-sizing:border-box!important;min-height:var(--action-height)!important;height:auto;
+ padding:8px 14px!important;border:1px solid var(--action-line)!important;border-radius:var(--action-radius)!important;
+ font-family:"Segoe UI","Microsoft YaHei",sans-serif!important;
+ font-size:var(--action-font)!important;font-weight:500!important;line-height:1.45!important;letter-spacing:0!important;
+ color:var(--action-fg)!important;background:var(--action-bg)!important;
+ box-shadow:none!important;text-decoration:none!important;white-space:nowrap;cursor:pointer;
+ transition:background-color var(--action-duration) var(--action-ease),border-color var(--action-duration) var(--action-ease),color var(--action-duration) var(--action-ease),box-shadow var(--action-duration) var(--action-ease),transform 100ms var(--action-ease)!important;
+}
+/* 1 / Solid: one principal action per group. */
+html[data-theme] :where(button,a.button,a.cover-link):is(.primary,.cover-link):not(:where(.record-open,.issue-row,.product-note,.product-course,.course-book)) {
+ --action-bg:var(--green);--action-fg:#fff;--action-line:var(--green);
+ --action-hover-bg:color-mix(in srgb,var(--green) 88%,#000);
+ --action-hover-line:var(--action-hover-bg);--action-hover-fg:#fff;
+}
+/* Subject shelves expose their principal action at a larger, touch-friendly size. */
+html[data-theme] a.subject-start {
+ --action-height:44px;--action-font:16px;
+ display:inline-flex;flex-shrink:0;padding:10px 18px!important;
+}
+/* 3 / Quiet: ancillary, icon, and navigation actions. Default above is 2 / Outlined. */
+html[data-theme] :where(button,a.text-button):is(.text-button,.settings-launch,.settings-dismiss,.subject-options,.new-subject,#liveAsk,[role=tab],[data-live-view]),
+html[data-theme] :where(button.icon-button):not(.with-label),
+html[data-theme] .reader-tabs button,
+html[data-theme] .style-navigation button {
+ --action-bg:transparent;--action-fg:var(--ink);--action-line:transparent;
+ --action-hover-bg:color-mix(in srgb,var(--green) 8%,var(--paper));
+ --action-hover-line:transparent;--action-hover-fg:var(--green);
+}
+/* Pause and focus are reversible secondary actions, including their selected state. */
+html[data-theme] :is(#pause,#focusView) {
+ --action-bg:var(--paper);--action-fg:var(--ink);--action-line:var(--control-border,var(--line));
+ --action-hover-bg:color-mix(in srgb,var(--green) 7%,var(--paper));
+ --action-hover-line:var(--green);--action-hover-fg:var(--green);
+ width:auto!important;filter:none!important;
+}
+html[data-theme] :is(#focusView[aria-pressed=true],.reader-tabs [aria-pressed=true],[data-live-view][aria-pressed=true],#liveAsk[aria-pressed=true],[role=tab][aria-selected=true]) {
+ --action-bg:color-mix(in srgb,var(--green) 10%,var(--paper));
+ --action-fg:var(--green);--action-line:transparent;
+}
+/* Destructive is a semantic color within the outlined family. */
+html[data-theme] :is(button.danger,button.subject-delete) {
+ --action-fg:var(--danger,#a0392b);--action-line:color-mix(in srgb,var(--danger,#a0392b) 35%,var(--line));
+ --action-hover-bg:color-mix(in srgb,var(--danger,#a0392b) 7%,var(--paper));
+ --action-hover-line:var(--danger,#a0392b);--action-hover-fg:var(--danger,#a0392b);
+}
+html[data-theme] button.book-confirm-danger {
+ --action-bg:#8a3324;--action-fg:#fff;--action-line:#8a3324;
+ --action-hover-bg:#732a1e;--action-hover-line:#732a1e;--action-hover-fg:#fff;
+}
+@media(hover:hover) {
+ html[data-theme] :where(button,a.button,a.icon-button,a.text-button,a.cover-link):not(:where(.record-open,.issue-row,.product-note,.product-course,.course-book,.nav-item,.subject-drag,.appearance-option,.book-action)):hover:not(:disabled):not([aria-disabled=true]) {
+  background:var(--action-hover-bg)!important;color:var(--action-hover-fg)!important;border-color:var(--action-hover-line)!important;
+ }
+}
+html[data-theme] :where(button,a.button,a.icon-button,a.text-button,a.cover-link):not(:where(.record-open,.issue-row,.product-note,.product-course,.course-book,.nav-item,.subject-drag,.appearance-option,.book-action)):active:not(:disabled):not([aria-disabled=true]) {
+ transform:translateY(1px)!important;box-shadow:inset 0 1px 2px #0000000d!important;
+}
+html[data-theme] :where(button,a.button,a.icon-button,a.text-button,a.cover-link):not(:where(.record-open,.issue-row,.product-note,.product-course,.course-book,.nav-item,.subject-drag,.appearance-option,.book-action)):is(:disabled,[aria-disabled=true]) {
+ --action-bg:color-mix(in srgb,var(--ink) 4%,var(--paper));--action-fg:var(--muted);--action-line:var(--line);
+ opacity:.65!important;cursor:not-allowed!important;transform:none!important;box-shadow:none!important;
+}
+html[data-theme] :where(button,a.button,a.icon-button,a.text-button,a.cover-link,.sidebar a,.style-navigation a):focus-visible {
+ outline:2px solid var(--green)!important;outline-offset:3px!important;
+}
+html[data-theme] :where(button,a.button,a.icon-button) .icon { width:18px;height:18px;stroke-width:1.7;flex-shrink:0; }
+/* Icon-only controls are compact members of the quiet family. */
+html[data-theme] :is(button.icon-button:not(.with-label),button.subject-options,button.new-subject,button.settings-dismiss) {
+ --action-height:34px;width:34px!important;height:34px!important;min-width:34px;padding:7px!important;flex-shrink:0;
+}
+html[data-theme] button.subject-options { font-size:22px!important;line-height:1!important; }
+html[data-theme] button.settings-dismiss { font-size:24px!important;line-height:1!important; }
+html[data-theme] .tree-caption .new-subject { flex-basis:34px; }
+html[data-theme] :is(#focusView,a.icon-button.with-label,button.icon-button.with-label) { width:auto!important; }
+/* Consistent quiet navigation without layout shifts between routes. */
+html[data-theme] .sidebar :is(.nav-item,.subject-link),html[data-theme] .style-navigation a {
+ border-radius:var(--action-radius);text-decoration:none;
+ transition:background-color var(--action-duration) var(--action-ease),color var(--action-duration) var(--action-ease)!important;
+}
+html[data-theme] .sidebar :is(.nav-item,.subject-link):hover { background:color-mix(in srgb,var(--green) 8%,var(--paper))!important; }
+html[data-theme] .sidebar :is(.nav-item,.subject-link,.subject-drag) { transform:none!important; }
+html[data-theme] .settings-tabs button { justify-content:flex-start;white-space:normal; }
+html[data-theme] .reader-tabs { flex-wrap:wrap;gap:6px; }
+html[data-theme] :is(.reader-tabs button,.live-reading-tabs button)::after { display:none; }
+html[data-theme] .live-reading-tabs { gap:6px; }
+html[data-theme] .reader-actions { flex-wrap:wrap;gap:8px; }
+html[data-theme] .qa-surface-tools { gap:12px; }
+html[data-theme] #questionsDrawer .qa-auto-options .qa-tools { gap:12px;align-items:center; }
+html[data-theme] #questionsDrawer .qa-auto-options .check-label {
+ min-height:40px;font-size:15px;font-weight:500;line-height:1.45;color:var(--ink);gap:9px;cursor:pointer;
+}
+html[data-theme] #questionsDrawer #autoQuestions { width:18px;height:18px;margin:0;flex-shrink:0;accent-color:var(--green); }
+/* The magazine cover is dark; its action gets the same outlined family in reverse. */
+html[data-theme] .cover-story .cover-link {
+ --action-bg:transparent;--action-fg:#fff;--action-line:#ffffff80;
+ --action-hover-bg:#ffffff16;--action-hover-line:#fff;--action-hover-fg:#fff;
+}
+@media(max-width:620px) {
+ html[data-theme] .settings-tabs button { justify-content:center;--action-font:14px;padding:8px!important; }
+ html[data-theme] .picked-row { flex-wrap:wrap;gap:6px; }
+ html[data-theme] .picked-row>span { flex-basis:100%; }
+}
+@media(prefers-reduced-motion:reduce) {
+ html[data-theme] :where(button,a.button,a.icon-button,a.text-button,a.cover-link,.sidebar a) { transition:none!important;transform:none!important; }
+}
+/* Preserve the native hidden contract used by page controllers. */
+html[data-theme] :where(button,a)[hidden] { display:none!important; }
+
+/* Selects share the action scale and theme palette. Keep native selection,
+   keyboard navigation, dynamic options, and controller-owned visibility. */
+:root {
+ --select-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236b7068' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+}
+html[data-theme] select {
+ box-sizing:border-box;min-width:0;max-width:100%;
+ min-height:var(--action-height)!important;
+ border:1px solid var(--control-border,var(--line))!important;
+ border-radius:var(--action-radius)!important;
+ padding:8px 40px 8px 14px!important;
+ font-family:"Segoe UI","Microsoft YaHei",sans-serif!important;
+ font-size:15px!important;font-weight:500!important;line-height:1.45!important;letter-spacing:0;
+ color:var(--ink)!important;background-color:var(--paper)!important;
+ box-shadow:none;outline:none;cursor:pointer;
+ transition:background-color var(--action-duration) var(--action-ease),border-color var(--action-duration) var(--action-ease)!important;
+}
+html[data-theme] select:not([multiple]):not([size]) {
+ -webkit-appearance:none;appearance:none;
+ background-image:var(--select-arrow)!important;background-repeat:no-repeat!important;
+ background-position:right 12px center!important;background-size:18px 18px!important;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+html[data-theme] select option,html[data-theme] select optgroup {
+ font:inherit;color:var(--ink);background:var(--paper);
+}
+html[data-theme] select option:disabled { color:var(--muted); }
+html[data-theme] .appearance-field { width:auto; }
+@media(hover:hover) {
+ html[data-theme] select:hover:not(:disabled) {
+  border-color:color-mix(in srgb,var(--green) 55%,var(--line))!important;
+  background-color:color-mix(in srgb,var(--green) 4%,var(--paper))!important;
+ }
+}
+html[data-theme] select:focus {
+ border-color:var(--green)!important;outline:2px solid var(--green)!important;outline-offset:2px!important;
+}
+html[data-theme] select:disabled {
+ color:var(--muted)!important;background-color:color-mix(in srgb,var(--ink) 4%,var(--paper))!important;
+ border-color:var(--line)!important;opacity:.65;cursor:not-allowed;
+}
+html[data-theme] select[aria-invalid=true] { border-color:var(--danger,#a0392b)!important; }
+html[data-theme] select[aria-invalid=true]:focus { outline-color:var(--danger,#a0392b)!important; }
+@media(max-width:620px) {
+ html[data-theme] select { font-size:16px!important; }
+ html[data-theme] .appearance-field { width:auto; }
+}
+@media(prefers-reduced-motion:reduce) {
+ html[data-theme] select { transition:none!important; }
+}
+@media(forced-colors:active) {
+ html[data-theme] select:not([multiple]):not([size]) {
+  appearance:auto;-webkit-appearance:auto;background-image:none!important;
+  color:ButtonText!important;background-color:ButtonFace!important;border-color:ButtonText!important;
+ }
+}
+
+/* Fields sit on their enclosing surface: page, paper panel, or recording strip.
+   Keep select arrows and native checkbox/radio rendering intact. */
+@media (forced-colors:none) {
+ html[data-theme] :is(
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=submit]):not([type=reset]):not([type=color]):not([type=file]):not([type=hidden]),
+  textarea,select
+ ):is(:enabled,:disabled) {
+  background-color:transparent!important;
+ }
+}
+
+/* Course selection: quiet on paper, clear when selected. */
+html[data-theme] .record-row input[type=checkbox] {
+ -webkit-appearance:none;appearance:none;
+ box-sizing:border-box;width:20px;height:20px;min-width:20px;min-height:20px;
+ flex:0 0 20px;padding:0;margin:2px;
+ border:1.5px solid var(--muted);border-radius:5px;
+ background-color:transparent;background-image:none;
+ background-position:center;background-size:16px 16px;background-repeat:no-repeat;
+ box-shadow:none;cursor:pointer;
+ transition:background-color var(--action-duration) var(--action-ease),border-color var(--action-duration) var(--action-ease);
+}
+html[data-theme] .record-row input[type=checkbox]:checked {
+ border-color:var(--green);background-color:var(--green);
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='m4.5 10 3.5 3.5 7.5-7.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+@media(hover:hover) {
+ html[data-theme] .record-row input[type=checkbox]:hover:not(:disabled) { border-color:var(--green); }
+ html[data-theme] .record-row input[type=checkbox]:hover:not(:checked):not(:disabled) { background-color:color-mix(in srgb,var(--green) 8%,transparent); }
+}
+html[data-theme] .record-row input[type=checkbox]:focus { outline:none; }
+html[data-theme] .record-row input[type=checkbox]:focus-visible { outline:2px solid var(--green);outline-offset:3px; }
+html[data-theme] .record-row input[type=checkbox]:disabled { opacity:.5;cursor:not-allowed; }
+@media(prefers-reduced-motion:reduce) {
+ html[data-theme] .record-row input[type=checkbox] { transition:none; }
+}
+@media(forced-colors:active) {
+ html[data-theme] .record-row input[type=checkbox] {
+  -webkit-appearance:auto;appearance:auto;background-image:none;background-color:Canvas;accent-color:auto;
+ }
+}

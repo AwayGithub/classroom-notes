@@ -27,15 +27,18 @@ class KnowledgeTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):migrate(old,self.root/'new')
     def test_keyword_and_retrieval_scope(self):
         a=self.store.create('第一讲','民法');self.store.transcript(a['id'],'合同成立需要双方意思表示一致。')
+        a=self.store.get(a['id']);a['notes']='合同成立需要双方意思表示一致。';self.store.save(a)
         b=self.store.create('其他课','刑法');self.store.transcript(b['id'],'合同成立不能参考这份内容。')
         self.assertEqual([x['id'] for x in search(self.store,'意思表示','民法')],[a['id']])
         refs=retrieve(self.store,'合同如何成立？','民法')
-        self.assertTrue(refs);self.assertTrue(all(r['sid']==a['id'] for r in refs))
+        self.assertTrue(refs);self.assertTrue(all(r['sid']==a['id'] and r['field']=='notes' for r in refs))
+        self.assertEqual(retrieve(self.store,'合同成立','刑法'),[])
         self.store.set_deleted([a['id']],True)
         self.assertEqual(search(self.store,'意思表示','民法'),[])
         self.assertEqual(retrieve(self.store,'合同如何成立？','民法'),[])
     async def test_answer_has_sources_and_no_evidence_no_api(self):
         a=self.store.create('第一讲','民法');self.store.transcript(a['id'],'合同成立需要双方意思表示一致。')
+        a=self.store.get(a['id']);a['notes']='合同成立需要双方意思表示一致。';self.store.save(a)
         async def llm(system,material):return '需要双方意思表示一致。[1]'
         result=await answer(self.store,a['id'],'合同成立需要什么？',llm)
         self.assertTrue(result['sources']);self.assertEqual(result['sources'][0]['sid'],a['id'])

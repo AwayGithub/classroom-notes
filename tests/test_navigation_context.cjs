@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const nav=require('../static/sidebar-navigation.js');
+assert.equal(nav.page('/library','?session=abc&from=home'),'home');
+assert.equal(nav.page('/library','?session=abc'),'library');
+const origin={surface:'list',subject:'民法',query:'合同',scroll:540,selected:['a']};
+assert.deepEqual(nav.readerOrigin({origin}),origin);
+assert.deepEqual(nav.readerOrigin(null),{surface:'list',subject:'',query:'',scroll:0,selected:[],trash:false});
+assert.equal(nav.readerOrigin({origin:{surface:'reader'}}).surface,'list');
+assert.equal(nav.readerOrigin(null,'?session=abc&from=home').surface,'home');
+console.log('Navigation origin tests passed');

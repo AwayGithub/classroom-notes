@@ -1,0 +1,52 @@
+#folderPicker{box-sizing:border-box;width:min(760px,calc(100vw - 32px));height:min(620px,calc(100dvh - 40px));max-width:none;max-height:none;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);box-shadow:0 24px 80px #0003;overflow:hidden}
+#folderPicker[open]{display:flex;flex-direction:column}
+#folderPicker::backdrop{background:#20251d66}
+#folderPicker .folder-heading{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line)}
+#folderPicker h2{margin:0;font-size:22px;line-height:1.4}
+#folderPicker svg{width:22px;height:22px;flex-shrink:0}
+#folderPicker .folder-location{display:flex;gap:8px;align-items:center;padding:20px 24px 0}
+#folderPicker input{min-width:0;flex:1;width:auto;margin:0;background:transparent}
+#folderPicker .folder-feedback{min-height:22px;margin:8px 24px;color:var(--muted);font-size:14px}
+#folderPicker .folder-list{flex:1;min-height:0;overflow:auto;padding:0 16px 16px;scrollbar-color:var(--line) transparent}
+#folderPicker .folder-entry{display:flex;width:100%;justify-content:flex-start;min-height:48px!important;margin:2px 0;white-space:normal;text-align:left}
+#folderPicker .folder-entry svg{color:var(--green)}
+#folderPicker .folder-entry span{overflow-wrap:anywhere}
+#folderPicker .folder-chevron{margin-left:auto;color:var(--muted);font-size:22px}
+#folderPicker .folder-footer{border-top:1px solid var(--line);padding:18px 24px;display:flex;gap:18px;align-items:center;justify-content:space-between}
+#folderPicker .folder-footer>div:first-child{min-width:0}
+#folderPicker .folder-footer span{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+#folderPicker .folder-selection{display:block;overflow-wrap:anywhere;font-size:14px;font-weight:500;max-height:64px;overflow:auto}
+#folderPicker .folder-actions{display:flex;gap:8px;flex-shrink:0}
+@media(max-width:600px){#folderPicker .folder-location{flex-wrap:wrap;padding:16px 16px 0}#folderPicker input{order:3;flex-basis:calc(100% - 85px)}#folderPicker .folder-location button[type=submit]{order:4}#folderPicker .folder-heading{padding:16px}#folderPicker .folder-footer{padding:16px;align-items:stretch;flex-direction:column;gap:12px}#folderPicker .folder-actions{justify-content:flex-end}}
+
+#folderPicker .folder-create-toolbar{padding:12px 24px 0;display:flex;justify-content:flex-end}
+#folderPicker .folder-create{margin:12px 24px 0;padding:14px;border:1px solid var(--line);border-radius:6px}
+#folderPicker .folder-create[hidden]{display:none}
+#folderPicker .folder-create label{display:block;margin-bottom:8px;font-size:14px}
+#folderPicker .folder-create>div{display:flex;gap:8px;align-items:center}
+@media(max-width:600px){#folderPicker .folder-create{margin:12px 16px 0}#folderPicker .folder-create>div{flex-wrap:wrap}#folderPicker .folder-create input{flex-basis:100%}}
+
+/* Compact navigation: one toolbar, no reserved empty status row. */
+#folderPicker .folder-heading{padding:16px 22px}
+#folderPicker h2{font-size:20px}
+#folderPicker .folder-location{margin:0;padding:14px 20px;gap:8px;border-bottom:1px solid var(--line);flex-shrink:0}
+#folderPicker .folder-location button{display:inline-flex}
+#folderPicker .folder-location input{height:40px;box-sizing:border-box;padding:8px 12px;border-radius:6px;font-size:14px}
+#folderPicker .folder-location .folder-up,#folderPicker .folder-location .folder-go{width:36px;min-width:36px;padding:8px!important}
+#folderPicker .folder-go{margin-left:-48px;margin-right:4px}
+#folderPicker .folder-location input{padding-right:44px}
+#folderPicker .folder-location [data-new]{margin-left:4px}
+#folderPicker .folder-feedback:empty{display:none}
+#folderPicker .folder-feedback{min-height:0;margin:10px 22px}
+#folderPicker .folder-list{padding:10px 14px}
+#folderPicker .folder-entry{min-height:44px!important}
+#folderPicker .folder-create{flex-shrink:0;margin:12px 20px 0;padding:12px;background:color-mix(in srgb,var(--green) 4%,var(--paper))}
+#folderPicker .folder-create label{margin-top:0}
+#folderPicker .folder-footer{padding:14px 22px}
+@media(max-width:600px){
+ #folderPicker .folder-location{display:grid;grid-template-columns:auto 36px 1fr auto;padding:12px;gap:6px}
+ #folderPicker .folder-location [data-new]{grid-column:4;grid-row:1;margin:0}
+ #folderPicker .folder-location input{grid-column:1/-1;grid-row:2;order:initial;width:100%}
+ #folderPicker .folder-location .folder-go{grid-column:4;grid-row:2;justify-self:end;order:initial;margin:0 2px 0 0}
+ #folderPicker .folder-create{margin:10px 12px 0}
+}

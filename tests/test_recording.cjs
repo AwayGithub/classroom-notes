@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const elements=new Map();
-const el=id=>{if(!elements.has(id))elements.set(id,{value:'',disabled:false,textContent:'',classList:{add(){},remove(){}},parentElement:{},replaceChildren(){},add(){}});return elements.get(id);};
+const el=id=>{if(!elements.has(id))elements.set(id,{value:'',disabled:false,textContent:'',childNodes:[],append(){},classList:{add(){},remove(){},toggle(){}},parentElement:{},replaceChildren(){},add(){}});return elements.get(id);};
 el('interval').value='20';
 let created=0, tracksStopped=0, saves=0, denyMicrophone=false;
 let health={backend:'funasr',model:'SenseVoiceSmall',device:'cpu',speech_id:'sensevoice'};

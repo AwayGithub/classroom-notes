@@ -23,6 +23,120 @@ class ApiTests(unittest.TestCase):
         self.client = TestClient(module.app)
         self.headers = {'X-Classroom': '1', 'Origin': 'http://127.0.0.1:8765'}
 
+    def test_standalone_questions_cross_subject_with_history(self):
+        from knowledge import SubjectStore
+        with patch.object(module, 'store', SubjectStore(Path(self.temp.name)/'qa-kb')):
+            a=module.store.create('合同第一讲','民法');b=module.store.create('合同执行','执行法')
+            deleted=module.store.create('已删除课','历史科目')
+            for course in (a,b,deleted):
+                course['notes']='合同成立需要双方意思表示一致，合同执行需要履行义务。';module.store.save(course)
+            module.store.set_deleted([deleted['id']],True)
+            before={str(p.relative_to(module.store.root)):p.read_bytes() for p in module.store.root.rglob('*') if p.is_file()}
+            async def complete(system, material):return '根据课程资料回答。[1]'
+            with patch.object(module,'request_completion',complete):
+                r=self.client.post('/api/knowledge/ask',json={'question':'合同成立及执行条件？'},headers=self.headers)
+                self.assertEqual(r.status_code,200,r.text)
+                self.assertEqual({s['subject'] for s in r.json()['sources']},{'民法','执行法'})
+                r=self.client.post('/api/knowledge/ask',json={'question':'合同成立条件？','subject':'民法'},headers=self.headers)
+                self.assertEqual(r.status_code,200,r.text)
+                self.assertEqual({s['sid'] for s in r.json()['sources']},{a['id']})
+                r=self.client.post('/api/knowledge/ask',json={'question':'量子隧穿条件？','subject':'民法'},headers=self.headers)
+                self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()['sources'],[])
+                r=self.client.post('/api/knowledge/ask',json={'question':'   '},headers=self.headers)
+                self.assertEqual(r.status_code,400)
+                self.assertEqual(self.client.post('/api/knowledge/ask',json={'question':'合同成立？'}).status_code,403)
+                after={str(p.relative_to(module.store.root)):p.read_bytes() for p in module.store.root.rglob('*') if p.is_file()}
+                self.assertEqual(before,{k:v for k,v in after.items() if k in before},'History must not change course files')
+                self.assertEqual(len(self.client.get('/api/knowledge/questions').json()),3)
+                self.assertEqual(len(self.client.get('/api/knowledge/questions?subject=民法').json()),3)
+                r=self.client.post('/api/sessions/'+a['id']+'/ask',json={'question':'合同成立条件？'},headers=self.headers)
+                self.assertEqual(r.status_code,200,r.text)
+                self.assertEqual({s['sid'] for s in r.json()['sources']},{a['id']})
+                self.assertEqual(len(module.store.get(a['id'])['qa']),1)
+                self.assertEqual(module.store.get(b['id']).get('qa',[]),[])
+
+    def test_history_limit_durability_and_selected_deletion(self):
+        from knowledge import SubjectStore, question_history
+        root=Path(self.temp.name)/'history-kb'
+        with patch.object(module,'store',SubjectStore(root)):
+            course=module.store.create('测试课','测试科目')
+            for i in range(12):
+                r=self.client.post('/api/knowledge/ask',json={'question':f'问题{i}'},headers=self.headers)
+                self.assertEqual(r.status_code,200,r.text)
+                self.client.post('/api/sessions/'+course['id']+'/ask',json={'question':f'课程问题{i}'},headers=self.headers)
+            entries=question_history(SubjectStore(root))
+            self.assertEqual(len(entries),10)
+            self.assertEqual(entries[0]['question'],'问题2')
+            self.assertIn('answer',entries[-1])
+            scoped=self.client.post('/api/knowledge/ask',json={'question':'科目问题','subject':'测试科目'},headers=self.headers).json()
+            r=self.client.post('/api/knowledge/questions/delete',json={'ids':[entries[0]['id'],scoped['id']]},headers=self.headers)
+            self.assertEqual(len(r.json()),9)
+            self.assertEqual(len(question_history(SubjectStore(root),'测试科目')),9)
+            persisted=SubjectStore(root).get(course['id'])['qa']
+            self.assertEqual(len(persisted),10)
+            r=self.client.post('/api/sessions/'+course['id']+'/questions/delete',json={'ids':[persisted[0]['id']]},headers=self.headers)
+            self.assertEqual(len(r.json()),9)
+            self.assertEqual(len(SubjectStore(root).get(course['id'])['qa']),9)
+            self.assertEqual(self.client.post('/api/knowledge/questions/delete',json={'ids':[entries[-1]['id']]}).status_code,403)
+
+    def test_subject_switch_keeps_shared_history_and_imports_legacy(self):
+        from knowledge import SubjectStore, atomic_write
+        root=Path(self.temp.name)/'shared-history-kb'
+        with patch.object(module,'store',SubjectStore(root)):
+            module.store.create('测试课甲','科目甲');module.store.create('测试课乙','科目乙')
+            def entry(key,subject,time):
+                return dict(id=key,question=key,answer='已保存回答',sources=[],subject=subject,created=time)
+            legacy={'all':[entry('旧问题全部',None,'2026-10-01T10:00:00')],
+                    'subject:科目甲':[entry('旧问题甲','科目甲','2026-10-01T10:01:00')],
+                    'subject:科目乙':[entry('旧问题乙','科目乙','2026-10-01T10:02:00')]}
+            atomic_write(root/'.听课'/'qa-history.json',json.dumps(legacy,ensure_ascii=False))
+            before=self.client.get('/api/knowledge/questions?subject=科目乙').json()
+            self.assertEqual([x['id'] for x in before],['旧问题全部','旧问题甲','旧问题乙'])
+            for subject in ('科目甲','科目乙'):
+                r=self.client.post('/api/knowledge/ask',json={'question':f'{subject}新问题','subject':subject},headers=self.headers)
+                self.assertEqual(r.status_code,200,r.text)
+            first=self.client.get('/api/knowledge/questions?subject=科目甲').json()
+            second=self.client.get('/api/knowledge/questions?subject=科目乙').json()
+            self.assertEqual(first,second)
+            self.assertEqual(len(first),5)
+            with patch.object(module,'store',SubjectStore(root)):
+                self.assertEqual(self.client.get('/api/knowledge/questions').json(),first)
+            result=self.client.post('/api/knowledge/questions/delete',json={'ids':['旧问题甲'],'subject':'科目乙'},headers=self.headers)
+            self.assertEqual(len(result.json()),4)
+            self.assertNotIn('旧问题甲',[x['id'] for x in self.client.get('/api/knowledge/questions').json()])
+
+    def test_subject_management_and_busy_guards(self):
+        from knowledge import SubjectStore
+        with patch.object(module,'store',SubjectStore(Path(self.temp.name)/'kb')):
+            c=self.client;h=self.headers
+            r=c.post('/api/knowledge/subjects',json={'subject':'测试科目'},headers=h)
+            self.assertEqual(r.status_code,200,r.text)
+            for key in ('active_recordings','note_jobs','switching'):
+                with patch.object(module.speech,key,1):
+                    r=c.post('/api/knowledge/subjects/rename',json={'subject':'测试科目','name':'新名称'},headers=h)
+                    self.assertEqual(r.status_code,409)
+            r=c.post('/api/knowledge/subjects/rename',json={'subject':'测试科目','name':'新名称'},headers=h)
+            self.assertEqual(r.status_code,200,r.text)
+            r=c.post('/api/knowledge/subjects/archive',json={'subject':'新名称'},headers=h)
+            self.assertEqual(r.status_code,200,r.text)
+            r=c.post('/api/knowledge/subjects/archive',json={'subject':'已归档'},headers=h)
+            self.assertEqual(r.status_code,400)
+
+    def test_purge_preview_confirmation_and_retired_endpoint(self):
+        from knowledge import SubjectStore
+        with patch.object(module,'store',SubjectStore(Path(self.temp.name)/'purge-kb')):
+            module.store.create('测试课','测试科目');c=self.client;h=self.headers
+            self.assertEqual(c.post('/api/knowledge/subjects/delete',json={'subject':'测试科目'},headers=h).status_code,409)
+            preview=c.post('/api/knowledge/subjects/delete-preview',json={'subject':'测试科目'},headers=h)
+            self.assertEqual(preview.status_code,200,preview.text)
+            payload={'subject':'测试科目','confirmation':'错','token':preview.json()['token']}
+            self.assertEqual(c.post('/api/knowledge/subjects/purge',json=payload,headers=h).status_code,400)
+            payload['confirmation']='测试科目'
+            with patch.object(module.speech,'active_recordings',1):
+                self.assertEqual(c.post('/api/knowledge/subjects/purge',json=payload,headers=h).status_code,409)
+            self.assertEqual(c.post('/api/knowledge/subjects/purge',json=payload,headers=h).status_code,200)
+            self.assertEqual(module.store.list(),[])
+
     def test_library_merge_preserves_sources_and_order(self):
         a = module.store.create('第一段'); b = module.store.create('第二段')
         module.store.transcript(a['id'], '[00:01] 甲'); module.store.transcript(b['id'], '[00:02] 乙')
@@ -78,6 +192,43 @@ class ApiTests(unittest.TestCase):
                 self.assertEqual(r.status_code,409,r.text)
         self.assertEqual(self.client.post('/api/sessions/trash',json={'session_ids':[a['id']]}).status_code,403)
 
+    def test_purge_removes_one_course_permanently(self):
+        from knowledge import SubjectStore
+        with patch.object(module, 'store', SubjectStore(Path(self.temp.name)/'purge-course')):
+            kept=module.store.create('留下的课','民法')
+            gone=module.store.create('要删除的课','民法')
+            module.store.transcript(gone['id'],'这节课的转写')
+            gone.update(notes='整理笔记',processed='这节课的转写',revision=1)
+            module.store.save(gone)
+            module.store.archive(module.store.get(gone['id']))
+            h=self.headers
+            self.assertEqual(self.client.post('/api/sessions/'+gone['id']+'/purge',json={'confirmation':'错了'},headers=h).status_code,400)
+            with patch.object(module.speech,'active_recordings',1):
+                self.assertEqual(self.client.post('/api/sessions/'+gone['id']+'/purge',json={'confirmation':gone['title']},headers=h).status_code,409)
+            r=self.client.post('/api/sessions/'+gone['id']+'/purge',json={'confirmation':gone['title']},headers=h)
+            self.assertEqual(r.status_code,200,r.text)
+            self.assertEqual([c['id'] for c in module.store.list()],[kept['id']])
+            self.assertFalse(any(gone['id'] in p.name or gone['id'] in p.read_text(encoding='utf-8') for p in module.store.root.rglob('*') if p.is_file()))
+
+    def test_archive_course_remembers_subject_and_restores(self):
+        from knowledge import SubjectStore
+        with patch.object(module, 'store', SubjectStore(Path(self.temp.name)/'restore-course')):
+            course=module.store.create('执行异议','强制执行法')
+            h=self.headers
+            r=self.client.post('/api/sessions/'+course['id']+'/subject',json={'subject':'已归档'},headers=h)
+            self.assertEqual(r.status_code,200,r.text)
+            listed=self.client.get('/api/sessions',headers=h).json()
+            self.assertEqual(listed[0]['subject'],'已归档')
+            self.assertEqual(listed[0]['archived_from'],'强制执行法')
+            r=self.client.post('/api/sessions/'+course['id']+'/subject',json={'subject':'强制执行法'},headers=h)
+            self.assertEqual(r.status_code,200,r.text)
+            self.assertEqual(module.store.get(course['id'])['subject'],'强制执行法')
+            self.assertNotIn('archived_from',module.store.get(course['id']))
+            earlier=module.store.create('强制执行法-9.18','已归档')
+            module.store.create_subject('强制执行法')
+            listed={c['id']:c for c in self.client.get('/api/sessions',headers=h).json()}
+            self.assertEqual(listed[earlier['id']]['archived_from'],'强制执行法')
+
     def test_rename_preserves_content_and_survives_reload(self):
         a=module.store.create('旧名称');module.store.transcript(a['id'],'原文')
         a.update(notes='# 原笔记',processed='原文',revision=3);module.store.save(a)
@@ -107,6 +258,9 @@ class ApiTests(unittest.TestCase):
         with patch.object(module,'store',SubjectStore(Path(self.temp.name)/'knowledge')), patch.object(module,'STORAGE_FILE',Path(self.temp.name)/'storage.json'):
             a=self.client.post('/api/sessions',json={'title':'第一讲','subject':'民法'},headers=self.headers).json()
             sid=a['id'];module.store.transcript(sid,'合同成立需要双方意思表示一致。')
+            item = module.store.get(sid)
+            item['notes'] = '合同成立需要双方意思表示一致。'
+            module.store.save(item)
             results=self.client.get('/api/sessions',params={'q':'意思表示','subject':'民法'}).json()
             self.assertEqual(results[0]['id'],sid);self.assertTrue(results[0]['hits'])
             async def fake(system,material):return '双方意思表示一致。[1]'
@@ -155,7 +309,7 @@ class ApiTests(unittest.TestCase):
         from speech_control import SpeechControl
         controller = SpeechControl(module.ROOT, 'qwen3-streaming', '1.7B', 'cuda', lambda _: self.fail('Must not launch during recording'))
         controller.active_recordings = 1
-        with patch.object(module, 'speech', controller):
+        with patch.object(module, 'speech', controller), patch.object(controller, 'available', return_value=True):
             r = self.client.post('/api/speech/model', json={'model_id':'sensevoice'}, headers=self.headers)
             self.assertEqual(r.status_code, 409)
             self.assertIn('录音', r.json()['detail'])

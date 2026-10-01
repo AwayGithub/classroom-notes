@@ -1,0 +1,242 @@
+/* A shared reading rhythm, with a quieter, task-focused interior. */
+html[data-theme=folio] {--muted:#6d7165;--study-width:1240px}
+html[data-theme] .sidebar nav .nav-item[aria-current=page] {font-weight:700!important}
+html[data-theme=folio] :is(.shelf-heading,.page-heading,.qa-page-heading) h1,
+html[data-theme=folio] .library-page[data-surface=list] .page-heading h1 {
+ font:400 clamp(36px,3.7vw,58px)/1.22 'Georgia','SimSun',serif;
+ letter-spacing:0;color:var(--ink);
+}
+html[data-theme=folio] :is(.shelf-heading,.page-heading,.qa-page-heading) h1 em {font-style:normal;color:#65765f}
+html[data-theme=folio] :is(.shelf-heading,.page-heading,.qa-page-heading) {margin-top:0;padding-top:31px}
+html[data-theme=folio] :is(.shelf-heading,.page-heading,.qa-page-heading) h1,
+html[data-theme=folio] .library-page[data-surface=list] .page-heading h1 {margin-top:0}
+html[data-theme=folio] :is(.shelf-heading,.page-heading,.qa-page-heading) h1 {text-wrap:balance}
+html[data-theme=folio] :is(.library-page[data-surface=list],.qa-full) main {max-width:none;width:100%;margin-inline:0}
+html[data-theme=folio] .library-page[data-surface=list] :is(.page-heading,.library-grid,#libraryMessage) {max-width:none;width:100%;margin-left:0;margin-right:0}
+html[data-theme=folio] .library-page[data-surface=list] .catalog {max-width:none}
+html[data-theme=folio] .library-page[data-surface=list] .page-heading {margin-bottom:24px}
+html[data-theme] .library-page .batch-tools :is(#selectVisible,#trashView) {
+ --action-bg:var(--paper);--action-fg:var(--green);--action-line:var(--green);
+ --action-hover-bg:color-mix(in srgb,var(--green) 12%,var(--paper));--action-hover-fg:var(--green);--action-hover-line:var(--green);
+}
+html[data-theme] .library-page .batch-tools :is(#selectVisible,#trashView)[aria-pressed=true] {
+ --action-bg:var(--green);--action-fg:#fffaf0;--action-line:var(--green);
+ --action-hover-bg:color-mix(in srgb,var(--green) 88%,#000);--action-hover-fg:#fffaf0;--action-hover-line:var(--action-hover-bg);
+}
+html[data-theme=folio] .catalog-heading {justify-content:flex-start;gap:18px;padding-bottom:24px}
+html[data-theme=folio] .catalog-heading h2 {font-size:25px}
+html[data-theme=folio] .count-badge {font:14px/1.5 'Segoe UI','Microsoft YaHei',sans-serif;color:var(--muted)}
+html[data-theme=folio] .catalog {display:grid;grid-template-columns:minmax(0,1fr) 220px;column-gap:24px}
+html[data-theme=folio] .catalog > :not(.search,.subject-filter) {grid-column:1/-1}
+html[data-theme=folio] .catalog .search {width:auto;margin:0;align-self:end}
+html[data-theme=folio] .catalog .subject-filter {width:auto;font-size:14px;gap:8px}
+html[data-theme=folio] .catalog :is(.search input,.subject-filter select) {min-height:46px}
+html[data-theme=folio] .batch-tools {margin:18px 0 0;padding-bottom:10px}
+html[data-theme=folio] .record-row {padding:22px 12px;gap:20px;min-height:100px;box-sizing:border-box}
+html[data-theme=folio] .record-row:hover {background:color-mix(in srgb,var(--green) 4%,var(--bg))}
+html[data-theme=folio] .record-row:has(input:checked) {background:color-mix(in srgb,var(--green) 10%,var(--bg))}
+html[data-theme=folio] .record-row input {width:20px;height:20px;accent-color:var(--green)}
+.record-open {grid-template-columns:minmax(0,1fr)}
+.record-summary {font:14px/1.65 'Segoe UI','Microsoft YaHei',sans-serif;color:var(--muted);overflow-wrap:anywhere}
+.record-summary small {display:inline;font:inherit;color:inherit}
+.record-subject {color:var(--ink)}
+html[data-theme=folio] .record-open strong {font-size:24px;line-height:1.45}
+html[data-theme=folio] .record-summary small {font-size:14px}
+html[data-theme=folio] .record-open {gap:8px}
+html[data-theme=folio] .shelf-heading {padding-bottom:46px}
+html[data-theme=folio] .subject-shelf {margin-bottom:42px}
+html[data-theme=folio] .subject-shelf > header {justify-content:space-between;gap:28px;margin-bottom:22px}
+html[data-theme=folio] .shelf-books {border-bottom-width:3px;box-shadow:0 7px 10px -9px #38392c40;padding-bottom:24px;gap:26px}
+html[data-theme=folio] .book-date {font-size:13px;line-height:1.6;letter-spacing:0;color:#fbf6e9}
+html[data-theme=folio] .book-new {flex-basis:128px;min-height:216px;font-size:14px;border-color:#c4c5b7}
+html[data-theme=folio] .subject-shelf[data-archived=true] .shelf-books:has(.shelf-empty) {border:0;box-shadow:none;padding:0}
+html[data-theme=folio] .shelf-empty {color:var(--muted);margin:0;font-size:15px}
+.live-tools {display:flex;align-items:center;justify-content:space-between;gap:24px;margin:24px 0}
+.live-tools .live-reading-tabs {flex:1;min-width:0;margin:0}
+.live-tools > #focusView {flex-shrink:0}
+html[data-theme] .live-tools .live-reading-tabs > :is(#liveAsk,[data-live-view])[aria-pressed=true] {
+ --action-bg:var(--green);--action-fg:#fffaf0;--action-line:var(--green);
+ --action-hover-bg:var(--green);--action-hover-fg:#fffaf0;--action-hover-line:var(--green);
+ font-weight:600;
+}
+.live-page .status-row:has(#message:empty) {display:none}
+.live-page.focus-view .live-tools {justify-content:flex-end}
+html[data-theme] .live-page.focus-view #focusView {
+ --action-bg:var(--green);--action-fg:#fffaf0;--action-line:var(--green);
+ --action-hover-bg:color-mix(in srgb,var(--green) 88%,#000);--action-hover-fg:#fffaf0;--action-hover-line:var(--action-hover-bg);
+ --action-height:44px;--action-font:16px;
+ padding:10px 20px!important;
+}
+html[data-theme=folio] .record-console {border:0;background:#e8eadd;padding:8px 28px}
+html[data-theme=folio] .record-console .session-row {gap:24px}
+html[data-theme=folio] .record-console .titlefield input {color:var(--ink)}
+html[data-theme=folio] .live-tools {margin-top:28px;margin-bottom:24px}
+html[data-theme=folio] .workspace {border-color:#e0ddd0}
+html[data-theme=folio] :is(.empty-transcript,.empty-notes,#recordStatus,#noteStatus) {color:var(--muted)}
+.qa-page-heading {display:none}
+html[data-theme] .qa-full main > .qa-page-heading {display:block!important}
+.qa-page-heading h1 {font:400 clamp(34px,3.7vw,58px)/1.35 'Georgia','SimSun',serif;letter-spacing:0;color:var(--ink);margin:16px 0}
+.qa-page-heading {margin:15px 0 46px}
+html[data-theme] .qa-full .qa-workbench {max-width:none;width:100%;margin-left:0;margin-right:0}
+html[data-theme] .qa-full .qa-workbench > #questionsDrawer {height:clamp(620px,72vh,840px);min-height:620px;border:0;background:var(--paper);overflow:visible}
+html[data-theme] .qa-full #questionsDrawer .qa-surface-tools {padding:0 28px;border:0;min-height:0;justify-content:flex-end}
+html[data-theme] .qa-full .qa-surface-tools h2 {display:none}
+html[data-theme] .qa-full .qa-surface-tools:has(button[hidden]) {display:none}
+html[data-theme] .qa-full #questionsDrawer > .panelhead {padding:24px 28px;border-bottom:1px solid var(--line);display:flex;align-items:end;justify-content:space-between;gap:24px}
+.qa-full #qaScope {font-size:14px;line-height:1.6;margin:0;color:var(--muted)}
+.qa-full .qa-scope-picker {margin:0;display:block;min-width:230px;max-width:320px}
+.qa-full .qa-scope-picker label {font-size:14px;color:var(--muted)}
+html[data-theme] .qa-full #questionsDrawer .ask-form {padding:22px 28px}
+.qa-full .ask-form > label {font-size:15px;color:var(--ink)}
+.qa-privacy-note {display:none}
+.qa-full .qa-privacy-note {display:block;font-size:13px;line-height:1.6;margin:5px 0 14px;padding:0}
+.qa-full #questionInput {min-height:92px;background:transparent;font-size:16px}
+.qa-starter {max-width:600px;margin:8px auto;text-align:center}
+.qa-starter h3 {font:400 28px/1.5 'Georgia','SimSun',serif;color:var(--ink);margin:0 0 10px}
+.qa-starter p {color:var(--muted);font-size:15px;line-height:1.7;margin:0 0 12px}
+.qa-starter-choices {display:flex;flex-direction:column;align-items:center;gap:4px}
+.qa-starter-choices button {white-space:normal!important;text-align:center;max-width:100%;padding:6px 14px;min-height:34px}
+.qa-full .qa-feed {scrollbar-color:var(--line) transparent;scrollbar-width:thin}
+@media(max-width:800px) {
+ html[data-theme=folio] :is(.shelf-heading,.page-heading,.qa-page-heading) h1,
+ html[data-theme=folio] .library-page[data-surface=list] .page-heading h1 {font-size:38px}
+ html[data-theme=folio] .catalog {grid-template-columns:minmax(0,1fr)}
+ html[data-theme=folio] .catalog .subject-filter {grid-column:1;margin-top:16px}
+ html[data-theme=folio] .record-row {padding:20px 4px;gap:16px}
+ html[data-theme=folio] .record-open strong {font-size:22px}
+ .live-tools {flex-wrap:wrap;gap:14px}
+ .live-tools .live-reading-tabs {flex-basis:100%;order:2;overflow:auto}
+ .live-tools > #focusView {margin-left:auto}
+ html[data-theme] .qa-full #questionsDrawer > .panelhead {flex-direction:column;align-items:stretch;padding:20px}
+ .qa-full .qa-scope-picker {max-width:none;min-width:0}
+ .qa-page-heading {margin:12px 0 28px}
+ html[data-theme] .qa-full #questionsDrawer .ask-form {padding:18px 20px}
+ .qa-starter {margin:24px auto}
+ .qa-starter h3 {font-size:24px}
+ html[data-theme=folio] .subject-shelf > header {gap:16px}
+ html[data-theme=folio] .subject-shelf h2 {flex-basis:100%}
+}
+
+html[data-theme] .library-page .batch-tools #trashView {
+ --action-bg:var(--paper);--action-fg:#ac402b;--action-line:#ac402b;
+ --action-hover-bg:color-mix(in srgb,#ac402b 10%,var(--paper));--action-hover-fg:#ac402b;--action-hover-line:#ac402b;
+}
+html[data-theme] .library-page .batch-tools #trashView[aria-pressed=true] {
+ --action-bg:#ac402b;--action-fg:#fffaf0;--action-line:#ac402b;
+ --action-hover-bg:#913624;--action-hover-fg:#fffaf0;--action-hover-line:#913624;
+}
+
+/* Selection opens a compact workspace as soon as two courses are picked. */
+html[data-theme] .catalog #selectionPanel {background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:24px;margin-top:24px}
+html[data-theme] #selectionPanel .selection-heading {gap:16px}
+html[data-theme] #selectionPanel #selectionCount {font:600 16px/1.5 'Segoe UI','Microsoft YaHei',sans-serif;background:color-mix(in srgb,var(--green) 10%,var(--paper));color:var(--green);padding:6px 12px;border-radius:5px;margin:0}
+html[data-theme] #selectionPanel #selectionHint {font-size:13px;line-height:1.7;margin:10px 0 0}
+html[data-theme] #selectionPanel .merge-actions {margin:0;flex-shrink:0}
+html[data-theme] #mergeOptions {display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:28px;border-top:1px solid var(--line);margin-top:20px;padding-top:24px}
+html[data-theme] #mergeOptions[hidden],html[data-theme] #selectionPanel[hidden] {display:none}
+html[data-theme] .merge-order h3,html[data-theme] .merge-setup>label {font:600 16px/1.5 'Segoe UI','Microsoft YaHei',sans-serif;color:var(--ink);margin:0 0 16px;display:block}
+html[data-theme] #selectionPanel #selected {margin:0;padding-left:24px}
+html[data-theme] #selected li {padding:12px 0;margin:0;border-bottom:1px solid var(--line);font-size:14px;color:var(--muted)}
+html[data-theme] #selected li:first-child {padding-top:0}
+html[data-theme] #selected li:last-child {border-bottom:0;padding-bottom:0}
+html[data-theme] #selected .picked-row {display:flex;flex-wrap:nowrap;align-items:center;gap:16px}
+html[data-theme] #selected .picked-info {flex:1;min-width:0}
+html[data-theme] #selected .picked-info strong {display:block;font:500 16px/1.5 'Segoe UI','Microsoft YaHei',sans-serif;color:var(--ink);overflow-wrap:anywhere}
+html[data-theme] #selected .picked-info small {display:block;font:13px/1.6 'Segoe UI','Microsoft YaHei',sans-serif;color:var(--muted);margin-top:4px}
+html[data-theme] #selected .picked-actions {display:flex;gap:6px;flex-shrink:0}
+html[data-theme] #selected .picked-actions button {--action-height:36px;--action-font:14px;padding:6px 10px!important;min-width:36px}
+html[data-theme] #selectionPanel .merge-setup {border-left:1px solid var(--line);padding-left:28px;min-width:0}
+html[data-theme] #selectionPanel #mergeTitle {font-size:16px;min-height:44px;width:100%;box-sizing:border-box;background:transparent}
+html[data-theme] #selectionPanel .merge-setup p {font-size:13px;line-height:1.7;margin:12px 0 20px}
+html[data-theme] #selectionPanel #merge {width:100%;min-height:44px!important}
+@media(max-width:850px) {
+ html[data-theme] #mergeOptions {grid-template-columns:minmax(0,1fr);gap:24px}
+ html[data-theme] #selectionPanel .merge-setup {border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:24px}
+}
+@media(max-width:500px) {
+ html[data-theme] .catalog #selectionPanel {padding:18px}
+ html[data-theme] #selected .picked-row {flex-wrap:wrap;gap:8px}
+ html[data-theme] #selected .picked-info {flex-basis:100%}
+}
+
+html[data-theme] .library-page .batch-tools #trashView {
+ --action-bg:var(--paper);--action-fg:var(--green);--action-line:var(--green);
+ --action-hover-bg:color-mix(in srgb,var(--green) 10%,var(--paper));--action-hover-fg:var(--green);--action-hover-line:var(--green);
+}
+html[data-theme] .library-page .batch-tools #trashView[aria-pressed=true] {
+ --action-bg:var(--green);--action-fg:#fffaf0;--action-line:var(--green);
+ --action-hover-bg:color-mix(in srgb,var(--green) 88%,#000);--action-hover-fg:#fffaf0;--action-hover-line:var(--action-hover-bg);
+}
+html[data-theme] :is(#purgeSelected,#confirmPurge) {--action-bg:#ac402b;--action-fg:#fffaf0;--action-line:#ac402b;--action-hover-bg:#913624;--action-hover-fg:#fffaf0;--action-hover-line:#913624}
+.archive-purge-dialog {width:min(480px,calc(100vw - 40px));padding:28px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.archive-purge-dialog h2 {font-size:22px;margin:0 0 16px}
+.archive-purge-dialog p {font-size:15px;line-height:1.7}
+#purgeCourseList {max-height:220px;overflow:auto;padding-left:24px;font-size:15px;line-height:1.8}
+html[data-theme] #selectionPanel .merge-actions {flex-wrap:wrap;justify-content:flex-end}
+
+/* Keep the list controls together, with a clear rhythm into the results. */
+.library-page[data-surface=list] #libraryMessage:empty {display:none}
+html[data-theme=folio] .library-page[data-surface=list] .catalog {row-gap:16px}
+html[data-theme=folio] .library-page[data-surface=list] .catalog > .catalog-heading {grid-column:1;grid-row:1;padding:0;min-height:40px}
+html[data-theme=folio] .library-page[data-surface=list] .catalog > .batch-tools {grid-column:2;grid-row:1;display:flex;justify-content:flex-end;align-items:center;margin:0;padding:0;border:0}
+html[data-theme=folio] .library-page[data-surface=list] .catalog > .search {grid-column:1;grid-row:2;align-self:end}
+html[data-theme=folio] .library-page[data-surface=list] .catalog > .subject-filter {grid-column:2;grid-row:2;align-self:end;margin:0}
+html[data-theme=folio] .library-page[data-surface=list] .subject-filter select {height:46px;min-height:46px!important}
+html[data-theme=folio] .library-page[data-surface=list] .subject-filter > .filter-caption {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-theme=folio] .library-page[data-surface=list] #records {border-top:1px solid var(--line);margin-top:4px}
+html[data-theme=folio] .library-page[data-surface=list] .record-row {min-height:92px;padding-top:18px;padding-bottom:18px}
+html[data-theme=folio] .library-page[data-surface=list] .catalog #selectionPanel {margin-top:8px}
+@media(max-width:800px) {
+ html[data-theme=folio] .library-page[data-surface=list] .catalog {grid-template-columns:minmax(0,1fr) auto;column-gap:16px;row-gap:12px}
+ html[data-theme=folio] .library-page[data-surface=list] .catalog > .search {grid-column:1/-1;grid-row:2}
+ html[data-theme=folio] .library-page[data-surface=list] .catalog > .subject-filter {grid-column:1/-1;grid-row:3}
+ html[data-theme=folio] .library-page[data-surface=list] .catalog-heading {gap:12px;flex-wrap:wrap}
+}
+
+/* Full-page questions begin with the composer, then lead into the answers. */
+html[data-theme] .library-page #search {background:var(--bg)!important;color:var(--ink);caret-color:var(--green)}
+html[data-theme] .library-page #search:focus {outline:2px solid var(--green)!important;outline-offset:2px;border-color:var(--green)!important;box-shadow:none!important}
+html[data-theme] .library-page #search:-webkit-autofill { -webkit-box-shadow:0 0 0 1000px var(--bg) inset!important;-webkit-text-fill-color:var(--ink)!important;caret-color:var(--green)}
+html[data-theme] .library-page .batch-tools[hidden] {display:none!important}
+html[data-theme] #records .search-result {display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%;padding:20px 14px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;text-align:left;color:var(--ink);cursor:pointer}
+html[data-theme] #records .search-result:hover {background:color-mix(in srgb,var(--green) 5%,var(--bg))}
+html[data-theme] #records .search-result:focus-visible {outline:2px solid var(--green);outline-offset:-2px}
+html[data-theme] #records .search-sentence {font:16px/1.85 'Segoe UI','Microsoft YaHei',sans-serif;overflow-wrap:anywhere;max-width:85ch}
+html[data-theme] #records .search-source {font:13px/1.6 'Segoe UI','Microsoft YaHei',sans-serif;color:var(--muted)}
+html[data-theme] #records mark {background:#f0d98b;color:#30372f;border-radius:2px;padding:1px 2px;box-decoration-break:clone}
+html[data-theme] .qa-full .qa-page-heading {margin-bottom:24px}
+html[data-theme] .qa-full .qa-workbench > #questionsDrawer {height:auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) auto;overflow:visible}
+html[data-theme] .qa-full #questionsDrawer > .qa-surface-tools {grid-column:2;grid-row:1;align-self:start;padding:24px 28px 0 0}
+html[data-theme] .qa-full #questionsDrawer > .panelhead {grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:24px 28px 20px;border:0}
+html[data-theme] .qa-full #questionsDrawer > .panelhead > div:first-child {order:2}
+html[data-theme] .qa-full #questionsDrawer > .panelhead > div:first-child {display:none}
+html[data-theme] .qa-full .qa-scope-picker {min-width:0;max-width:none;width:100%}
+html[data-theme] .qa-full .qa-scope-picker label {display:flex;flex-direction:row;align-items:center;gap:16px;color:var(--ink);font-size:15px;white-space:nowrap}
+html[data-theme] .qa-full .qa-scope-picker select {width:240px;max-width:100%;min-height:44px!important;background:transparent}
+html[data-theme] .qa-full #questionsDrawer .qa-layout {grid-column:1/-1;display:flex;min-height:0}
+html[data-theme] .qa-full #questionsDrawer .ask-form {order:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 20px;padding:0 28px 24px;border:0}
+html[data-theme] .qa-full .ask-form > label {grid-column:1/-1;font-size:18px;font-weight:600;margin:0}
+html[data-theme] .qa-full .ask-form .qa-privacy-note {grid-column:1;grid-row:3;margin:0;align-self:center;font-size:13px}
+html[data-theme] .qa-full #questionInput {grid-column:1/-1;grid-row:2;min-height:152px;max-height:320px;resize:vertical;padding:14px 16px 64px;line-height:1.7;font-size:16px;box-sizing:border-box;width:100%;background:var(--bg)}
+html[data-theme] .qa-full #askButton {grid-column:1/-1;grid-row:2;align-self:end;justify-self:end;z-index:1;float:none;margin:0 16px 12px 0;min-width:88px}
+html[data-theme] .qa-full #qaStatus {grid-column:1/-1;padding:0;font-size:14px}
+html[data-theme] .qa-full #qaStatus:empty {display:none}
+html[data-theme] .qa-full #questionsDrawer .qa-feed {order:1;flex:none;min-height:0;overflow:visible;padding:24px 28px;border-top:1px solid var(--line)}
+html[data-theme] .qa-full .qa-starter {max-width:none;margin:0;text-align:left}
+html[data-theme] .qa-full .qa-starter h3 {font:600 15px/1.5 'Segoe UI','Microsoft YaHei',sans-serif;margin:0 0 12px;color:var(--ink)}
+html[data-theme] .qa-full .qa-starter > p {display:none}
+html[data-theme] .qa-full .qa-starter-choices {flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:10px}
+html[data-theme] .qa-full #qaFeed .qa-starter-choices button {--action-bg:transparent;--action-fg:var(--green);--action-line:var(--line);--action-hover-bg:color-mix(in srgb,var(--green) 10%,var(--paper));--action-hover-fg:var(--green);--action-hover-line:var(--green);padding:9px 14px!important;min-height:40px;text-align:left;font-size:14px!important}
+html[data-theme] .qa-full .qa-feed .qa-card {width:100%;max-width:none;margin:0 0 28px;padding-bottom:28px;box-sizing:border-box}
+html[data-theme] .qa-full .qa-feed .qa-card:last-child {margin-bottom:0;border-bottom:0}
+@media(max-width:650px) {
+ html[data-theme] .qa-full .qa-workbench > #questionsDrawer {grid-template-columns:minmax(0,1fr)}
+ html[data-theme] .qa-full #questionsDrawer > .qa-surface-tools {grid-column:1;grid-row:1;padding:16px 20px 0}
+ html[data-theme] .qa-full #questionsDrawer > .panelhead {grid-column:1;grid-row:2;padding:20px}
+ html[data-theme] .qa-full #questionsDrawer .ask-form {padding:0 20px 20px;gap:12px}
+ html[data-theme] .qa-full #questionsDrawer .qa-feed {padding:20px}
+ html[data-theme] .qa-full .qa-scope-picker label {gap:12px}
+ html[data-theme] .qa-full .qa-scope-picker select {width:100%;min-width:0;flex:1}
+ html[data-theme] .qa-full .ask-form .qa-privacy-note {grid-column:1/-1;grid-row:3}
+ html[data-theme] .qa-full #askButton {grid-row:2}
+}

@@ -1,0 +1,32 @@
+html[data-theme] .qa-card button.qa-collapse {
+ --action-bg:var(--paper);--action-fg:var(--green);--action-line:var(--green);
+ --action-hover-bg:var(--green);--action-hover-fg:#fff;--action-hover-line:var(--green);
+ flex-shrink:0;min-width:72px;font-weight:600!important;
+}
+.qa-card .qa-answer[hidden] {display:none}
+html[data-theme] .qa-card button.qa-citation {
+ --action-bg:color-mix(in srgb,var(--green) 9%,var(--paper));--action-fg:var(--green);--action-line:transparent;
+ --action-hover-bg:var(--green);--action-hover-fg:#fff;--action-hover-line:var(--green);
+ display:inline-flex;vertical-align:baseline;min-height:0!important;height:auto!important;
+ padding:1px 4px!important;margin:0 2px;border-radius:3px!important;
+ font-size:12px!important;font-weight:650!important;line-height:1.5!important;
+}
+.qa-citation:focus-visible {outline:2px solid var(--green);outline-offset:2px}
+.qa-citation-popup {
+ position:fixed;z-index:100;width:min(420px,calc(100vw - 24px));max-height:min(380px,calc(100dvh - 24px));
+ padding:18px 20px;box-sizing:border-box;overflow:auto;overscroll-behavior:contain;
+ background:var(--paper,#faf9f6);color:var(--ink,#30372f);border-radius:8px;
+ box-shadow:0 8px 32px rgba(30,40,30,.22);scrollbar-width:thin;
+}
+.qa-citation-popup[hidden] {display:none}
+.qa-citation-popup>strong {display:block;font:600 14px/1.6 'Segoe UI','Microsoft YaHei',sans-serif;margin-bottom:12px}
+html[data-theme] .qa-citation-popup .qa-citation-text {font:400 14px/1.85 'Segoe UI','Microsoft YaHei',sans-serif}
+html[data-theme] .qa-citation-popup .qa-citation-text :is(h1,h2,h3,h4) {font-size:16px;line-height:1.6;margin:18px 0 8px}
+.qa-citation-popup .qa-citation-text :is(p,ul,ol) {margin:8px 0}
+.qa-citation-popup>a {display:inline-block;font-size:13px;line-height:1.6;color:var(--green);margin-top:12px;text-underline-offset:3px}
+.qa-history-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 0 18px;margin-bottom:24px;border-bottom:1px solid #deddd2;color:#7e8174}
+html[data-theme] .qa-card-head .qa-history-meta{display:flex;flex-direction:row;align-items:center;gap:12px;cursor:pointer;margin:0}
+html[data-theme] .qa-card-head .qa-history-check{width:18px;height:18px;min-height:0;padding:0;margin:0;accent-color:#405849;cursor:pointer;flex:none}
+html[data-theme] .qa-history-delete{--action-bg:var(--paper);--action-fg:#a34232;--action-line:#b96352;--action-hover-bg:#a34232;--action-hover-fg:#fff;--action-hover-line:#a34232;color:#a34232;border:1px solid #b96352;background:transparent;border-radius:6px;padding:8px 16px;cursor:pointer}
+.qa-history-delete:hover:not(:disabled){background:#a34232;color:#fff}
+.qa-history-delete:disabled{opacity:.4;cursor:default}

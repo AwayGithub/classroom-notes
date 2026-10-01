@@ -1,0 +1,937 @@
+/* Three complete presentation systems;
+   controllers and stored data remain shared. */
+.appearance-field {
+  display:flex;
+  align-items:center;
+  height:40px;
+  padding:3px;
+  gap:2px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:color-mix(in srgb,var(--ink) 3%,transparent)}
+.appearance-field .appearance-option {
+  min-height:0!important;
+  height:32px;
+  padding:0 12px!important;
+  border:0!important;
+  border-radius:6px!important;
+  background:transparent!important;
+  color:var(--muted)!important;
+  font-size:14px!important;
+  font-weight:500!important;
+  letter-spacing:.02em;
+  box-shadow:none!important}
+.appearance-field .appearance-option[aria-checked=true] {
+  background:var(--paper)!important;
+  color:var(--ink)!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 28%,var(--line))!important}
+@media(hover:hover) {
+ .appearance-field .appearance-option:hover {
+  color:var(--ink)!important}
+}
+.style-navigation,.alternate-home {
+  display:none}
+
+html[data-theme=stage],html[data-theme=stage] body {
+  --bg:#fff;
+  --paper:#fff;
+  --ink:#202023;
+  --muted:#6c6c73;
+  --line:#e3e3e7;
+  --green:#252528;
+  --soft:#efeff2;
+  --control-border:#ceced4;
+  --danger:#a33429;
+  background:var(--bg)}
+
+html[data-theme=folio],html[data-theme=folio] body {
+  --bg:#f1eee6;
+  --paper:#fcfaf3;
+  --ink:#343b32;
+  --muted:#6e7165;
+  --line:#d7d4c8;
+  --green:#425848;
+  --soft:#e5e7db;
+  --control-border:#c3c4b6;
+  --danger:#943b29;
+  background:var(--bg)}
+
+html:is([data-theme=stage],[data-theme=folio]) .library-page[data-surface=home] #magazineHome {
+  display:none}
+
+html:is([data-theme=stage],[data-theme=folio]) .library-page[data-surface=home] .alternate-home {
+  display:block}
+
+html[data-theme=stage] .app-shell {
+  margin-left:0}
+html[data-theme=stage] .topbar {
+  background:#fff;
+  padding:0 5%;
+  border-bottom:0}
+html[data-theme=stage] .topbar .breadcrumb {
+  opacity:.75}
+html[data-theme=stage] .style-navigation {
+  display:flex;
+  align-items:center;
+  gap:32px;
+  padding:20px 5% 24px;
+  border-bottom:1px solid var(--line)}
+.style-navigation a,.style-navigation button {
+  color:var(--ink);
+  font-size:13px;
+  text-decoration:none;
+  background:transparent;
+  border:0;
+  padding:7px 0;
+  min-height:36px}
+.style-navigation a:hover,.style-navigation button:hover {
+  text-decoration:underline}
+.style-navigation .style-wordmark {
+  font-size:29px;
+  font-weight:700;
+  letter-spacing:-.04em;
+  margin-right:auto}
+.style-navigation button:last-child {
+  color:var(--muted)}
+html[data-theme=stage] .sidebar {
+  background:#f7f7f8;
+  border-color:var(--line);
+  box-shadow:10px 0 45px #19192718;
+  z-index:40;
+  top:66px}
+html[data-theme=stage] .brandmark {
+  display:none}
+html[data-theme=stage] .nav-item.active,html[data-theme=stage] .tree-course[aria-current=page] {
+  background:#e7e7ec;
+  color:var(--ink)}
+html[data-theme=stage] .nav-item:hover,html[data-theme=stage] .tree-course:hover {
+  background:#e7e7ec}
+html[data-theme=stage] .primary {
+  border-radius:25px;
+  padding-left:21px;
+  padding-right:21px}
+html[data-theme=stage] .primary:hover {
+  background:#3b3b41;
+  border-color:#3b3b41}
+html[data-theme=stage] main {
+  max-width:1480px;
+  padding:35px 5%}
+html[data-theme=stage] ::selection {
+  background:#dcdce7;
+  color:#252528}
+
+.product-hero {
+  min-height:620px;
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:65px;
+  align-items:center;
+  padding:45px 3% 80px}
+.product-intro h1 {
+  font-size:clamp(66px,7.5vw,108px);
+  letter-spacing:-.04em;
+  line-height:1.17;
+  font-weight:650;
+  margin:0 0 30px}
+.product-intro h1 span {
+  color:#85858e}
+.product-subtitle {
+  font-size:17px;
+  margin:0;
+  line-height:1.8}
+.product-actions {
+  display:flex;
+  align-items:center;
+  gap:24px;
+  margin-top:35px}
+.product-actions .primary {
+  padding:14px 26px}
+.product-object {
+  position:relative;
+  min-height:425px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 25px}
+.product-note {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  text-align:left;
+  white-space:normal;
+  background:#f1f0ec;
+  border:1px solid #dfded8;
+  border-radius:8px;
+  box-shadow:0 20px 40px #25253313;
+  width:310px;
+  min-height:400px;
+  padding:32px;
+  transform:rotate(-5deg);
+  z-index:2;
+  color:#343434;
+  gap:25px}
+.product-note:hover {
+  background:#f6f5f1;
+  transform:rotate(-3deg)}
+.product-note strong {
+  font-size:39px;
+  line-height:1.45;
+  letter-spacing:-.035em;
+  font-weight:600;
+  overflow-wrap:anywhere}
+.product-note-label,.product-note-meta,.product-note-open {
+  font-size:12px;
+  color:#676760}
+.product-note-open {
+  border-top:1px solid #cfcec6;
+  padding-top:20px;
+  width:100%}
+.product-note-back {
+  position:absolute;
+  z-index:1;
+  right:-5px;
+  top:-12px;
+  background:#e3eaeb;
+  transform:rotate(8deg);
+  width:290px;
+  min-height:385px;
+  justify-content:flex-start;
+  color:#3f585b}
+.product-note-back strong {
+  font-size:26px;
+  margin-top:55px}
+.product-note-empty {
+  transform:none}
+.product-recent {
+  display:grid;
+  grid-template-columns:1fr 1.25fr;
+  gap:80px;
+  background:#f6f6f8;
+  border-radius:12px;
+  padding:60px;
+  margin:10px 0 60px}
+.product-recent h2 {
+  font-size:42px;
+  letter-spacing:-.03em;
+  line-height:1.4;
+  margin:25px 0;
+  max-width:300px}
+.product-course {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  width:100%;
+  padding:21px 0;
+  gap:9px;
+  background:transparent;
+  border:0;
+  border-bottom:1px solid #dddde4;
+  border-radius:0;
+  text-align:left;
+  white-space:normal}
+.product-course>span {
+  font-size:11px;
+  color:var(--muted)}
+.product-course strong {
+  font-size:21px;
+  font-weight:550}
+.product-recent-list>a {
+  display:inline-block;
+  margin-top:20px}
+
+html[data-theme=stage] .library-page[data-surface=list] main {
+  max-width:1180px}
+html[data-theme=stage] .library-page[data-surface=reader] main {
+  max-width:1050px}
+html[data-theme=stage] .library-page[data-surface=reader] .library-grid {
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  max-width:760px;
+  margin:auto}
+html[data-theme=stage] .reading-outline {
+  position:static;
+  border-bottom:1px solid var(--line);
+  padding:0 0 18px;
+  width:100%;
+  margin-bottom:35px}
+html[data-theme=stage] .reading-outline h2 {
+  margin-bottom:8px}
+html[data-theme=stage] #outlineLinks {
+  display:flex;
+  gap:22px;
+  overflow:auto;
+  max-height:110px}
+html[data-theme=stage] #outlineLinks a {
+  flex:0 0 auto;
+  max-width:220px}
+html[data-theme=stage] .reading-outline>button {
+  margin-top:5px}
+html[data-theme=stage] .reader {
+  width:100%}
+html[data-theme=stage] .reader-titlebar h2 {
+  font-size:48px}
+html[data-theme=stage] .reader .panelbody {
+  max-width:76ch}
+html[data-theme=stage] .reader-navigation {
+  border:0}
+html[data-theme=stage] .record-console {
+  max-width:1000px;
+  margin:auto;
+  border:0;
+  background:#f7f7f9;
+  border-radius:12px;
+  padding:0 28px}
+html[data-theme=stage] .record-settings {
+  border-color:#dedee4}
+html[data-theme=stage] .live-page .page-heading {
+  max-width:1000px;
+  margin:25px auto 40px}
+html[data-theme=stage] .live-page .page-heading h1 {
+  font-size:52px}
+html[data-theme=stage] .live-page .status-row,html[data-theme=stage] .live-reading-tabs {
+  max-width:1000px;
+  margin-left:auto;
+  margin-right:auto}
+html[data-theme=stage] .workspace {
+  display:flex;
+  flex-direction:column;
+  max-width:850px;
+  margin:35px auto;
+  gap:25px}
+html[data-theme=stage] .notes-panel {
+  order:0}
+html[data-theme=stage] .transcript-panel {
+  order:1;
+  border:0;
+  border-top:1px solid var(--line);
+  padding:20px 0 0}
+html[data-theme=stage] .notes-panel .panelbody {
+  min-height:300px;
+  max-height:65vh}
+html[data-theme=stage] .transcript-panel .panelbody {
+  min-height:170px;
+  max-height:280px}
+html[data-theme=stage] .is-recording .record-actions {
+  left:50%;
+  border-radius:40px}
+html[data-theme=stage] .qa-panel,html[data-theme=stage] dialog {
+  background:#fff}
+html[data-theme=stage] .ask-form {
+  background:#f5f5f7}
+html[data-theme=stage] .merge-box {
+  background:#f4f4f7;
+  border-color:var(--line)}
+html[data-theme=stage] .record-row:hover,html[data-theme=stage] .record-row.active {
+  background:#f5f5f8}
+html[data-theme=stage] .search-hit {
+  background:#ededf4;
+  color:#555563}
+
+/* Folio: subject shelves, bound pages, margin navigation and warm controls. */
+html[data-theme=folio] .sidebar {
+  background:#e8e5db}
+html[data-theme=folio] .nav-item.active,html[data-theme=folio] .tree-course[aria-current=page] {
+  background:#d9dfd2;
+  color:var(--green)}
+html[data-theme=folio] .nav-item:hover,html[data-theme=folio] .tree-course:hover {
+  background:#e0e2d7}
+html[data-theme=folio] .topbar {
+  background:var(--bg)}
+html[data-theme=folio] .primary:hover {
+  background:#334639;
+  border-color:#334639}
+html[data-theme=folio] ::selection {
+  background:#d6dcc9;
+  color:#34412f}
+.shelf-heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:50px;
+  padding:15px 0 50px}
+.shelf-heading h1 {
+  font:400 clamp(45px,5vw,70px)/1.35 'Georgia','SimSun',serif;
+  letter-spacing:-.035em;
+  margin:0}
+.shelf-heading h1 em {
+  font-style:normal;
+  color:#65765f}
+.shelf-heading p {
+  max-width:230px;
+  font-size:14px;
+  line-height:2;
+  margin-bottom:12px}
+.subject-shelf {
+  margin:10px 0 55px}
+.subject-shelf>header {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:25px}
+.subject-shelf h2 {
+  font:400 24px 'Georgia','SimSun',serif;
+  margin:0}
+.subject-shelf header a {
+  font-size:12px}
+.shelf-books {
+  display:flex;
+  align-items:stretch;
+  gap:28px;
+  overflow:auto;
+  padding:0 12px 27px;
+  border-bottom:8px solid #d7d3c8;
+  box-shadow:0 12px 12px -14px #38392c66}
+.course-book {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:space-between;
+  flex:0 0 196px;
+  min-height:272px;
+  padding:25px 23px;
+  text-align:left;
+  white-space:normal;
+  border:1px solid #0001;
+  border-left:9px solid #0002;
+  border-radius:2px 5px 5px 2px;
+  gap:28px;
+  color:#fbf6e9;
+  box-shadow:5px 4px 8px #28251913;
+  transition:transform .16s}
+.book-wrap { position:relative; flex:0 0 196px; }
+.book-wrap .course-book { flex:1 1 auto; width:100%; }
+.book-actions {
+  position:absolute; left:14px; right:14px; bottom:18px;
+  display:flex; gap:8px; justify-content:flex-end;
+  opacity:0; pointer-events:none;
+  transition:opacity .16s}
+.book-wrap:hover .book-actions,
+.book-wrap:focus-within .book-actions { opacity:1; pointer-events:auto; }
+.book-action {
+  min-height:0!important; height:30px; padding:0 10px!important;
+  border-radius:6px!important; border:0!important;
+  background:#fbf6e9!important; color:#2c342c!important;
+  font-size:13px!important; font-weight:500!important; box-shadow:none!important}
+.book-action-delete { background:#f3e4dc!important; color:#8a3324!important; }
+.book-confirm {
+  width:min(420px,calc(100vw - 32px));
+  padding:28px 28px 22px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--paper);
+  color:var(--ink);
+  box-shadow:0 18px 50px #1c1a141f}
+.book-confirm::backdrop { background:#1c1a1440; }
+.book-confirm h2 { margin:0 0 10px; font-size:22px; font-weight:600; letter-spacing:-.02em; }
+.book-confirm p { margin:0; font-size:15px; line-height:1.7; color:var(--muted); }
+.book-confirm-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+.book-confirm-danger {
+  background:#8a3324!important; color:#fff!important; border-color:#8a3324!important; }
+.course-book:hover {
+  transform:translateY(-5px);
+  filter:brightness(1.08)}
+.book-tone-0,.book-tone-0:hover {
+  background:#4d6454}
+.book-tone-1,.book-tone-1:hover {
+  background:#796346}
+.book-tone-2,.book-tone-2:hover {
+  background:#646076}
+.course-book strong {
+  font:400 25px/1.6 'Georgia','SimSun',serif;
+  overflow-wrap:anywhere;
+  letter-spacing:.02em}
+.book-label,.book-date {
+  font-size:10px;
+  letter-spacing:.04em;
+  color:#f0e9d8}
+.book-new {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 150px;
+  min-height:245px;
+  align-self:end;
+  border:1px dashed #b8b8a8;
+  color:#6b6f61;
+  font-size:12px;
+  text-decoration:none}
+.book-new:hover {
+  background:#e9e7db}
+.shelf-empty {
+  line-height:1.9;
+  font-size:15px}
+
+html[data-theme=folio] .page-heading h1 {
+  font-family:'Georgia','SimSun',serif;
+  font-weight:400;
+  letter-spacing:0}
+html[data-theme=folio] .catalog-heading h2 {
+  font:400 25px 'Georgia','SimSun',serif}
+html[data-theme=folio] .record-open strong {
+  font-family:'Georgia','SimSun',serif;
+  font-weight:400;
+  font-size:23px}
+html[data-theme=folio] .record-row:hover,html[data-theme=folio] .record-row.active {
+  background:#e7e8dc}
+html[data-theme=folio] .merge-box {
+  background:#e8e9dc;
+  border-color:#c8ceba}
+html[data-theme=folio] .library-page[data-surface=reader] .library-grid {
+  grid-template-columns:minmax(0,1fr) 180px;
+  gap:0;
+  background:#fcfaf3;
+  border:1px solid #ddd9cc;
+  box-shadow:0 8px 30px #3c332b09;
+  padding:36px}
+.library-page[data-surface=reader] .library-grid .reader {
+  min-width:0}
+html[data-theme=folio] .reading-outline {
+  grid-column:2;
+  grid-row:1;
+  padding:20px 0 20px 27px;
+  border-left:1px solid #dfddce;
+  margin-left:30px}
+html[data-theme=folio] .reader {
+  grid-column:1;
+  grid-row:1;
+  background:transparent}
+html[data-theme=folio] .reader-titlebar h2 {
+  font:400 38px/1.5 'Georgia','SimSun',serif;
+  letter-spacing:.015em}
+html[data-theme=folio] .reader .panelbody {
+  font-family:'Georgia','SimSun',serif;
+  font-size:17px;
+  line-height:2.05}
+html[data-theme=folio] .notes-content h2 {
+  font-weight:500}
+html[data-theme=folio] .reader-tabs [aria-pressed=true] {
+  color:var(--green)}
+html[data-theme=folio] .library-page.focus-view .library-grid {
+  display:block}
+html[data-theme=folio] .library-page.focus-view .reading-outline {
+  display:none}
+html[data-theme=folio] .record-console {
+  background:#eae9dd;
+  padding:0 25px;
+  border:1px solid #d6d8c8}
+html[data-theme=folio] .titlefield input {
+  font-family:'Georgia','SimSun',serif}
+html[data-theme=folio] .workspace {
+  gap:0;
+  background:#fcfaf3;
+  border:1px solid #d9d7c8;
+  padding:28px;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+html[data-theme=folio] .transcript-panel {
+  padding-right:25px}
+html[data-theme=folio] .notes-panel {
+  padding-left:30px}
+html[data-theme=folio] .notes-panel .panelbody,
+html[data-theme=folio] .transcript-panel .panelbody {
+  background:transparent;
+  font-family:'Georgia','SimSun',serif}
+html[data-theme=folio] .transcript-panel .text {
+  font-size:inherit;
+  line-height:inherit}
+html[data-theme=folio] .live-page[data-live-view=notes] .notes-panel {
+  padding-left:0}
+html[data-theme=folio] .live-page.focus-view .notes-panel {
+  padding-left:0}
+html[data-theme=folio] .qa-panel,html[data-theme=folio] dialog {
+  background:#fcfaf3}
+html[data-theme=folio] .ask-form {
+  background:#eeeede}
+html[data-theme=folio] .is-recording .record-actions {
+  background:#fcfaf3}
+
+@media(max-width:1150px) {
+  .appearance-field .appearance-option {
+  padding:0 10px!important}
+.product-hero {
+  gap:25px;
+  padding:35px 0 65px;
+  min-height:570px}
+.product-intro h1 {
+  font-size:78px}
+.product-note {
+  width:255px;
+  min-height:360px;
+  padding:26px}
+.product-note strong {
+  font-size:32px}
+.product-note-back {
+  width:230px;
+  min-height:330px;
+  right:0}
+.product-note-back strong {
+  font-size:24px}
+.product-recent {
+  padding:40px;
+  gap:45px}
+.shelf-heading h1 {
+  font-size:52px}
+.shelf-heading p {
+  max-width:190px}
+.shelf-books {
+  gap:22px}
+.course-book {
+  flex-basis:180px}
+.style-navigation {
+  gap:22px!important}
+html[data-theme=folio] .library-page[data-surface=reader] .library-grid {
+  grid-template-columns:minmax(0,1fr);
+  padding:28px}
+html[data-theme=folio] .reading-outline {
+  grid-row:1;
+  grid-column:1;
+  position:static;
+  margin:0 0 30px;
+  padding:0 0 20px;
+  border-left:0;
+  border-bottom:1px solid var(--line)}
+html[data-theme=folio] #outlineLinks {
+  display:flex;
+  gap:20px;
+  overflow:auto}
+html[data-theme=folio] #outlineLinks a {
+  flex:0 0 auto;
+  max-width:200px}
+html[data-theme=folio] .reader {
+  grid-row:2;
+  grid-column:1}
+}
+
+@media(max-width:800px) {
+  .topbar {
+  gap:10px}
+.appearance-field .appearance-option {
+  padding:0 8px!important;
+  font-size:13px!important}
+.topbar .headright .pill {
+  max-width:130px}
+.topbar .breadcrumb {
+  display:none}
+html[data-theme=stage] .sidebar {
+  top:60px}
+html[data-theme=stage] .style-navigation {
+  flex-wrap:wrap;
+  gap:15px!important;
+  padding:15px 20px}
+html[data-theme=stage] .style-navigation .style-wordmark {
+  display:none}
+html[data-theme=stage] .style-navigation a,html[data-theme=stage] .style-navigation button {
+  font-size:12px}
+html[data-theme=stage] .topbar {
+  padding:0 18px}
+html[data-theme=stage] .product-hero {
+  min-height:530px}
+.product-intro h1 {
+  font-size:65px}
+.product-subtitle {
+  font-size:14px}
+.product-actions {
+  flex-wrap:wrap;
+  gap:12px}
+.product-note {
+  width:230px;
+  min-height:335px}
+.product-note strong {
+  font-size:29px}
+.product-note-back {
+  width:205px;
+  min-height:315px}
+.product-recent {
+  gap:28px}
+.product-recent h2 {
+  font-size:33px}
+.shelf-heading h1 {
+  font-size:50px}
+.shelf-heading {
+  gap:25px}
+html[data-theme=folio] .workspace {
+  padding:23px}
+html[data-theme=folio] .notes-panel {
+  padding-left:22px}
+html[data-theme=stage] .live-page .page-heading h1 {
+  font-size:45px}
+html[data-theme=stage] .reader-titlebar h2 {
+  font-size:39px}
+}
+
+@media(max-width:570px) {
+  .topbar {
+  flex-wrap:wrap;
+  height:auto;
+  min-height:92px;
+  padding:10px 14px;
+  gap:8px}
+.topbar .appearance-field {
+  margin-left:auto}
+.topbar .headright {
+  flex:1;
+  min-width:0}
+.topbar .headright .pill {
+  max-width:175px}
+.topbar>a.button {
+  margin-left:0;
+  font-size:11px;
+  padding:8px 12px}
+.topbar .questions-toggle {
+  font-size:11px}
+.appearance-field {
+  height:36px}
+.appearance-field .appearance-option {
+  height:28px;
+  padding:0 8px!important}
+.sidebar {
+  top:92px}
+html[data-theme=stage] .sidebar {
+  top:92px}
+html[data-theme=stage] .topbar {
+  padding:10px 14px;
+  height:auto}
+html[data-theme=stage] .style-navigation {
+  padding:12px 20px;
+  gap:8px 18px!important}
+html[data-theme=stage] .style-navigation button:last-child {
+  margin-left:0}
+html[data-theme=stage] main {
+  padding:24px 20px}
+.product-hero {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:45px;
+  padding:25px 0 50px}
+.product-intro h1 {
+  font-size:72px;
+  margin-bottom:23px}
+.product-subtitle {
+  font-size:14px;
+  max-width:270px}
+.product-actions {
+  gap:20px;
+  margin-top:27px}
+.product-actions .primary {
+  padding:12px 21px;
+  font-size:12px}
+.product-actions .text-button {
+  font-size:11px}
+.product-object {
+  min-height:340px;
+  width:100%;
+  padding:0 15px}
+.product-note {
+  width:235px;
+  min-height:330px;
+  padding:27px;
+  transform:rotate(-4deg)}
+.product-note strong {
+  font-size:30px}
+.product-note-back {
+  right:8px;
+  top:-8px;
+  width:215px;
+  min-height:310px;
+  transform:rotate(7deg)}
+.product-note-back strong {
+  font-size:23px}
+.product-recent {
+  display:block;
+  padding:30px 24px;
+  margin:10px 0 35px}
+.product-recent h2 {
+  font-size:34px;
+  margin:22px 0}
+.product-course strong {
+  font-size:20px}
+html[data-theme=stage] .record-console {
+  padding:0 18px}
+html[data-theme=stage] .live-page .page-heading h1 {
+  font-size:39px}
+html[data-theme=stage] .reader-titlebar h2 {
+  font-size:33px}
+html[data-theme=stage] .is-recording .record-actions {
+  border-radius:10px}
+html[data-theme=stage] .reading-outline {
+  margin-bottom:20px}
+.shelf-heading {
+  display:block;
+  padding:15px 0 32px}
+.shelf-heading h1 {
+  font-size:46px;
+  line-height:1.45}
+.shelf-heading p {
+  max-width:none;
+  font-size:13px;
+  margin:22px 0 0}
+.subject-shelf {
+  margin-bottom:40px}
+.subject-shelf>header {
+  gap:10px}
+.subject-shelf h2 {
+  font-size:22px}
+.subject-shelf header a {
+  font-size:11px}
+.shelf-books {
+  gap:19px;
+  padding:0 0 24px}
+.course-book {
+  flex-basis:172px;
+  min-height:240px;
+  padding:23px 18px;
+  gap:22px}
+.course-book strong {
+  font-size:23px}
+.book-new {
+  flex-basis:130px;
+  min-height:225px;
+  font-size:11px}
+.book-label,.book-date {
+  font-size:10px}
+html[data-theme=folio] .library-page[data-surface=reader] .library-grid {
+  padding:23px 17px;
+  margin:0 -8px}
+html[data-theme=folio] .reader-titlebar h2 {
+  font-size:29px}
+html[data-theme=folio] .reader .panelbody {
+  font-size:16px}
+html[data-theme=folio] .workspace {
+  padding:22px 18px;
+  gap:30px}
+html[data-theme=folio] .notes-panel,html[data-theme=folio] .transcript-panel {
+  padding:0}
+html[data-theme=folio] .record-console {
+  padding:0 17px}
+html[data-theme=folio] .reader-tabs {
+  gap:20px}
+html[data-theme=folio] .reader-tabs button {
+  font-size:12px}
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .course-book {
+  transition:none}
+.course-book:hover,.product-note:hover {
+  transform:none}
+}
+
+/* Shared reading rows keep both separators aligned, including with long content. */
+html[data-theme=folio] .live-page:not(.focus-view) .workspace > .panel > .panelhead {
+  box-sizing:border-box;
+  height:80px;
+  min-height:80px;
+  flex:0 0 80px;
+  padding:18px 0;
+  align-items:center;
+}
+html[data-theme=folio] .live-page:not(.focus-view) .workspace > .panel > .panelhead h2 {
+  margin:0;
+  line-height:1.5;
+}
+html[data-theme=folio] .live-page:not(.focus-view) .workspace > .panel > .panelbody {
+  box-sizing:border-box;
+  height:clamp(350px,55vh,650px);
+  min-height:0;
+  max-height:none;
+  flex:0 0 auto;
+  padding:26px 0;
+  overflow:auto;
+}
+html[data-theme=folio] .live-page:not(.focus-view) .workspace > .panel > footer {
+  box-sizing:border-box;
+  height:76px;
+  min-height:76px;
+  flex:0 0 76px;
+  padding:16px 0;
+  align-items:center;
+}
+html[data-theme=folio] .live-page .workspace .empty-notes p:first-child { margin-top:0; }
+/* Both empty states use the same paragraph rhythm. */
+html[data-theme=folio] .workspace :is(.empty-transcript,.empty-notes) {
+  white-space:normal;
+}
+html[data-theme=folio] .workspace :is(.empty-transcript,.empty-notes) > p {
+  margin:0;
+  font:inherit;
+  color:inherit;
+}
+html[data-theme=folio] .workspace :is(.empty-transcript,.empty-notes) > p + p {
+  margin-top:12px;
+}
+/* Recording controls belong to the course console, never over the reading pages. */
+html[data-theme] .live-page.is-recording .record-actions {
+  position:static;
+  inset:auto;
+  transform:none;
+  z-index:auto;
+  width:auto;
+  max-width:100%;
+  margin:0;
+  padding:0 0 0 20px;
+  border:0;
+  border-left:1px solid var(--line);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  flex-wrap:wrap;
+}
+html[data-theme] .live-page.is-recording .record-actions button {
+  min-height:44px;
+  padding:10px 16px;
+  border-radius:5px;
+  font-size:13px;
+  font-weight:500;
+  box-shadow:none;
+}
+html[data-theme] .live-page.is-recording .record-actions #stop {
+  color:var(--ink);
+  background:transparent;
+  border:1px solid var(--control-border,var(--line));
+}
+html[data-theme] .live-page.is-recording .record-actions #stop:hover {
+  background:var(--paper);
+  border-color:var(--muted);
+}
+html[data-theme] .live-page.focus-view.is-recording .record-console {
+  padding:14px 0;
+  background:transparent;
+  border-bottom:1px solid var(--line);
+}
+html[data-theme] .live-page.focus-view.is-recording .record-actions {
+  margin-left:auto;
+  padding:0;
+  border:0;
+}
+@media(max-width:1100px) {
+  html[data-theme] .live-page.is-recording .record-actions {
+    width:100%;
+    padding:16px 0 0;
+    border-left:0;
+    border-top:1px solid var(--line);
+  }
+  html[data-theme] .live-page.focus-view.is-recording .record-actions {
+    padding:0;
+    border:0;
+    justify-content:flex-end;
+  }
+}
+/* Give focused course reading more of the available desktop width. */
+html[data-theme] .library-page.focus-view .library-grid {
+  width:100%;
+  max-width:1200px;
+  margin-inline:auto;
+}
+html[data-theme] .library-page.focus-view .reader .panelbody {
+  width:100%;
+  max-width:none;
+}

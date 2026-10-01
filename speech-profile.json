@@ -1,5 +1,7 @@
 {
-    "backend":  "qwen3-streaming",
-    "model":  "1.7B",
-    "device":  "cuda"
+  "backend": "qwen3-streaming",
+  "model": "Confucius4-R2T2",
+  "device": "cuda",
+  "folder": "Confucius4-R2T2",
+  "report": "Confucius4-R2T2"
 }
