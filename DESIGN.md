@@ -84,3 +84,18 @@ static/themes.js 管理主题选择和真实首页呈现；static/themes.css 覆
 ## 2026-10-01 Unified study surfaces
 
 Preserve the warm ivory palette, dark green actions, serif page titles and generous introductory space. Shared study-refinement.css aligns page controls and improves supporting text. The folio home groups the subject action near its heading and lightens shelf separators; the archive shelf has no create-course action. Course-list metadata stays together beneath the title, with distinct hover and selected states. The classroom focus control shares the reading-mode toolbar. Full knowledge questions use a shared large heading, compact scope controls and three empty-state examples that fill the draft without sending a request. Return labels reflect the source page. Desktop and 390px layouts were visually inspected, along with filtering, contextual return, draft preservation and focus-mode exit.
+
+
+## 工作室重构（2026-10-02）
+
+三种风格保留各自色调与气质，结构样式整体重写为 `static/studio/`，旧的 16 个层层覆盖的样式表不再加载。
+
+- `core.css`：设计令牌、外壳（侧栏 / 毛玻璃顶栏）、按钮与表单、笔记排版、对话框、设置、文件夹选择、提示条与命令面板。
+- `live.css` / `library.css` / `qa.css`：实时课堂、首页 / 目录 / 阅读、知识问答的结构。
+- `edition.css` / `stage.css` / `folio.css`：只写各风格的令牌与标志性部件。
+  - 杂志：墨线分隔、砖红封面与大引号、斜体日期索引、首字下沉与红色章节线。
+  - 舞台：单条毛玻璃导航、渐变标题、随指针倾斜的悬浮笔记卡、灰底大圆角卡片。
+  - 书房：宋体排版、真实书架（书脊高度随转写字数变化，悬停抽出）、纸页阅读与双页课堂。
+- `studio.js`：只读取控制器状态与 DOM，不改变录音、保存或 API 行为。录音计时与实时声波、转写逐行出现与“回到最新”、笔记新版本提示、状态行同步为浮动提示、Ctrl K 命令面板（课程、页面、操作、全文搜索）、阅读进度条与目录滚动高亮、科目稳定配色、主题切换的圆形揭示过渡。
+
+原 `#message`、`#libraryMessage`、`#transcript` 仍保留在 DOM 中供读屏与测试使用，界面上分别由提示条和转写镜像呈现。遵从减少动态效果偏好。
