@@ -95,6 +95,16 @@
 .qa-full .qa-card{padding:18px 22px 20px}
 .qa-full .qa-card h3{font-size:17px}
 .qa-full .qa-answer{font-size:16px;line-height:1.95}
+.qa-mode-control{grid-area:mode;display:flex;align-items:center;gap:10px;min-width:0}
+.qa-mode-control label{font-size:12px;color:var(--muted);white-space:nowrap}
+.qa-mode-control select{min-width:0;max-width:100%;min-height:32px;font-size:12px;padding:4px 28px 4px 10px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius)}
+.ask-form{grid-template-areas:"label label" "input input" "mode mode" "help send" "status status"}
+.qa-full .ask-form{grid-template-areas:"input send" "mode mode" "status status"}
+.qa-provenance{font-size:12px!important;line-height:1.5!important;color:var(--accent)!important;margin:0 0 12px!important;font-family:var(--font-ui)}
+.qa-answer-notice{font-size:13px!important;color:var(--muted)!important;margin-top:14px}
+.qa-web-sources{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:13px/1.7 var(--font-ui)}
+.qa-web-sources summary{cursor:pointer;color:var(--muted)}
+.qa-web-sources a{display:block;margin-top:8px;overflow-wrap:anywhere;color:var(--accent);text-underline-offset:3px}
 .qa-answer h1{font-size:1.35em}.qa-answer h2{font-size:1.18em;margin-top:1.5em}.qa-answer h3{font-size:1.05em}
 
 @media (max-width:900px){

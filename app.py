@@ -2,6 +2,7 @@
 import os
 import json
 from pathlib import Path
+from typing import Literal
 
 ROOT = Path(__file__).resolve().parent
 os.environ.setdefault('HF_HOME', str(ROOT / 'models'))
@@ -34,6 +35,8 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel, Field
 from notes import Store, atomic_write, update_notes
 from note_writer import compose_notes
+from web_search import AnySearchClient
+from qa_stream import qa_response
 from knowledge import SubjectStore, subject_name, migrate, search, answer, knowledge_answer, detect_questions, question_history, update_question_history
 import asyncio
 from speech_control import SpeechControl, SpeechActivity, SwitchError
@@ -58,6 +61,8 @@ def read_config():
 async def lifespan(app):
     global engine
     store.migrate_uncategorized()
+    from speech_vad import install_classroom_audio_processor
+    install_classroom_audio_processor()
     from whisperlivekit.basic_server import create_app
     from whisperlivekit.config import WhisperLiveKitConfig
     repo = {'small': 'Systran--faster-whisper-small', 'large-v3-turbo': 'mobiuslabsgmbh--faster-whisper-large-v3-turbo'}.get(MODEL)
@@ -573,7 +578,11 @@ async def set_subject(sid: str,value: SubjectSelection):
         raise HTTPException(400,str(exc))
 
 
-class QuestionRequest(BaseModel):
+class QuestionOptions(BaseModel):
+    mode: Literal['auto','local'] = 'auto'
+
+
+class QuestionRequest(QuestionOptions):
     question: str = Field(min_length=1,max_length=1000)
 
 
@@ -582,7 +591,7 @@ class KnowledgeQuestionRequest(QuestionRequest):
 
 
 @app.post('/api/knowledge/ask')
-async def ask_knowledge(value: KnowledgeQuestionRequest):
+async def ask_knowledge(value: KnowledgeQuestionRequest, request: Request):
     question=value.question.strip()
     if not question:raise HTTPException(400,'请输入问题')
     if speech.switching:raise HTTPException(409,'请等待模型切换完成')
@@ -591,12 +600,18 @@ async def ask_knowledge(value: KnowledgeQuestionRequest):
         try:subject=subject_name(subject)
         except ValueError as exc:raise HTTPException(400,str(exc))
         if subject not in store.subjects():raise HTTPException(400,'所选科目不存在，请刷新后重试')
-    speech.note_jobs+=1
-    try:
-        result=await knowledge_answer(store,question,request_completion,subject)
-        update_question_history(store,subject,entry=result)
-        return result
-    finally:speech.note_jobs-=1
+    async def run(progress):
+        # StreamingResponse starts work after the endpoint returns; recheck admission here.
+        if speech.switching:raise HTTPException(409,'请等待模型切换完成')
+        if subject and subject not in store.subjects():raise HTTPException(400,'所选科目不存在，请刷新后重试')
+        speech.note_jobs+=1
+        try:
+            search_web=AnySearchClient().search if value.mode=='auto' else None
+            result=await knowledge_answer(store,question,request_completion,subject,web_search=search_web,progress=progress)
+            update_question_history(store,subject,entry=result)
+            return result
+        finally:speech.note_jobs-=1
+    return await qa_response(request,run)
 
 
 class QuestionSelection(BaseModel):
@@ -630,30 +645,44 @@ async def questions(sid: str):
 
 
 @app.post('/api/sessions/{sid}/ask')
-async def ask_question(sid: str,value: QuestionRequest):
+async def ask_question(sid: str,value: QuestionRequest,request: Request):
     session(sid)
     if not value.question.strip():raise HTTPException(400,'请输入问题')
     if speech.switching:raise HTTPException(409,'请等待模型切换完成')
     lock=qa_locks.setdefault(sid,asyncio.Lock())
     if lock.locked():raise HTTPException(409,'本课问答正在处理，请稍候')
-    speech.note_jobs+=1
-    try:
-        async with lock:return await answer(store,sid,value.question.strip(),request_completion)
-    finally:speech.note_jobs-=1
+    async def run(progress):
+        if speech.switching:raise HTTPException(409,'请等待模型切换完成')
+        session(sid)
+        if lock.locked():raise HTTPException(409,'本课问答正在处理，请稍候')
+        speech.note_jobs+=1
+        try:
+            search_web=AnySearchClient().search if value.mode=='auto' else None
+            async with lock:return await answer(store,sid,value.question.strip(),request_completion,
+                web_search=search_web,progress=progress)
+        finally:speech.note_jobs-=1
+    return await qa_response(request,run)
 
 
 @app.post('/api/sessions/{sid}/detect-questions')
-async def identify_questions(sid: str):
+async def identify_questions(sid: str,request: Request,value: QuestionOptions=QuestionOptions()):
     session(sid)
     if speech.switching:raise HTTPException(409,'请等待模型切换完成')
     lock=qa_locks.setdefault(sid,asyncio.Lock())
     if lock.locked():return dict(busy=True)
-    speech.note_jobs+=1
-    try:
-        async with lock:return dict(items=await detect_questions(store,sid,request_completion))
-    except (ValueError,TypeError) as exc:
-        raise HTTPException(502,'问题识别响应无法解析，请稍后重试')
-    finally:speech.note_jobs-=1
+    async def run(progress):
+        if speech.switching:raise HTTPException(409,'请等待模型切换完成')
+        session(sid)
+        if lock.locked():return dict(busy=True)
+        speech.note_jobs+=1
+        try:
+            search_web=AnySearchClient().search if value.mode=='auto' else None
+            async with lock:return dict(items=await detect_questions(store,sid,request_completion,
+                web_search=search_web,progress=progress))
+        except (ValueError,TypeError):
+            raise HTTPException(502,'问题识别响应无法解析，请稍后重试')
+        finally:speech.note_jobs-=1
+    return await qa_response(request,run)
 
 
 class QuestionAction(BaseModel):

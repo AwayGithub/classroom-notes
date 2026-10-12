@@ -30,12 +30,14 @@ window.QaCitations=(()=>{
  async function show(button,ref){
   clearTimeout(closeTimer);ensurePopup();if(active===button&&!popup.hidden)return;
   close();active=button;const request=++sequence;button.setAttribute('aria-expanded','true');
-  const title=document.createElement('strong');title.textContent=`${ref.title} · 课程笔记`;
+  const web=ref.kind==='web';const url=web?window.QaNetwork.sourceUrl(ref.url):null;
+  popup.setAttribute('aria-label',web?'引用的网页资料':'引用的课程笔记');
+  const title=document.createElement('strong');title.textContent=`${ref.title} · ${web?(ref.evidence==='snippet'?'网页摘要':'网页资料'):'课程笔记'}`;
   const text=document.createElement('div');text.className='qa-citation-text notes-content';text.textContent='正在读取笔记…';
-  const link=document.createElement('a');link.href='/library?session='+encodeURIComponent(ref.sid);link.target='_blank';link.rel='noopener';link.textContent='打开课程笔记';
+  const link=document.createElement('a');link.href=web?(url||'#'):'/library?session='+encodeURIComponent(ref.sid);link.hidden=web&&!url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=web?'打开来源网页':'打开课程笔记';
   popup.replaceChildren(title,text,link);popup.hidden=false;place();
-  const notes=await notesFor(ref);if(request!==sequence||active!==button)return;
-  renderNotes(text,notes||'这节课尚未生成笔记。');place();
+  const notes=web?(ref.text||''):await notesFor(ref);if(request!==sequence||active!==button)return;
+  renderNotes(text,notes||(web?'暂无网页摘录。':'这节课尚未生成笔记。'));place();
  }
  function attach(root,sources){
   const refs=new Map((sources||[]).map(ref=>[Number(ref.number),ref]));
@@ -46,7 +48,7 @@ window.QaCitations=(()=>{
    for(const match of node.textContent.matchAll(pattern)){
     const ref=refs.get(Number(match[1]));if(!ref)continue;
     fragment.append(document.createTextNode(node.textContent.slice(start,match.index)));
-    const button=document.createElement('button');button.type='button';button.className='qa-citation';button.textContent=match[0];button.setAttribute('aria-label',`引用 ${ref.number}：${ref.title}的课程笔记`);button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls','qaCitationPopup');
+    const button=document.createElement('button');button.type='button';button.className='qa-citation';button.textContent=match[0];button.setAttribute('aria-label',`引用 ${ref.number}：${ref.title} · ${ref.kind==='web'?'网页资料':'课程笔记'}`);button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls','qaCitationPopup');
     button.onpointerenter=()=>void show(button,ref);button.onpointerleave=scheduleClose;button.onfocus=()=>void show(button,ref);button.onblur=scheduleClose;button.onclick=()=>void show(button,ref);
     fragment.append(button);start=match.index+match[0].length;changed=true;
    }
