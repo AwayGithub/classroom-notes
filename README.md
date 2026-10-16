@@ -2,7 +2,7 @@
 
 一个面向中文课堂的本地网页应用：麦克风实时转写、每隔约 60 秒根据全文重新整理笔记、暂停续录、历史资料浏览、多段转写合并、批量删除与恢复。
 
-语音识别由 [WhisperLiveKit](https://github.com/QuentinFuxa/WhisperLiveKit) 在本机运行。笔记整理使用用户自行配置的 OpenAI 兼容 Chat Completions API，例如 DeepSeek。仓库不含 API 密钥、课堂记录、模型权重或 Python 环境。
+语音识别由 [WhisperLiveKit](https://github.com/QuentinFuxa/WhisperLiveKit) 在本机运行，**推荐使用网易有道的 [Confucius4-R2T2](https://huggingface.co/netease-youdao/Confucius4-R2T2) 进行中文课堂实时转写**，当前仓库的默认语音配置已选用该模型。笔记整理使用用户自行配置的 OpenAI 兼容 Chat Completions API，例如 DeepSeek。仓库不含 API 密钥、课堂记录、模型权重或 Python 环境。
 
 ## 能做什么
 
@@ -59,20 +59,23 @@ git submodule update --init --recursive
 
 ## 要准备哪些语音识别模型
 
-**至少安装下面一种模型和对应环境即可，不需要全部下载。** 默认配置是 Qwen3-ASR-1.7B GPU；只装 SenseVoice 时，务必按后文修改默认配置。
+**至少安装下面一种模型和对应环境即可，不需要全部下载。** 推荐并默认使用 **Confucius4-R2T2 GPU**；选择 Qwen、SenseVoice 或 Whisper 时，按后文替换 `speech-profile.json`，使启动配置与已下载的权重一致。
 
 | 模型 | 官方/权重仓库 | 用途与设备 | 环境目录 | 本项目要求的权重位置 |
 |---|---|---|---|---|
-| Qwen3-ASR-1.7B | [Qwen/Qwen3-ASR-1.7B](https://huggingface.co/Qwen/Qwen3-ASR-1.7B) | 中文课堂首选尝试，NVIDIA GPU | `.venv-qwen` | `models/Qwen3-ASR-1.7B/` |
+| **Confucius4-R2T2（推荐、默认）** | [netease-youdao/Confucius4-R2T2](https://huggingface.co/netease-youdao/Confucius4-R2T2) | 中文课堂实时转写，NVIDIA GPU | `.venv-qwen` | `models/Confucius4-R2T2/` |
+| Qwen3-ASR-1.7B | [Qwen/Qwen3-ASR-1.7B](https://huggingface.co/Qwen/Qwen3-ASR-1.7B) | 通用语音识别 GPU 备选 | `.venv-qwen` | `models/Qwen3-ASR-1.7B/` |
 | Qwen3-ASR-0.6B | [Qwen/Qwen3-ASR-0.6B](https://huggingface.co/Qwen/Qwen3-ASR-0.6B) | 较轻量的 GPU 备选 | `.venv-qwen` | `models/Qwen3-ASR-0.6B/` |
 | SenseVoiceSmall | [FunAudioLLM/SenseVoiceSmall](https://huggingface.co/FunAudioLLM/SenseVoiceSmall) | CPU 方案 | `.venv-sensevoice` | `models/SenseVoiceSmall/` |
 | Whisper large-v3-turbo | [mobiuslabsgmbh/faster-whisper-large-v3-turbo](https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo) | 多语言 GPU 备选，使用 faster-whisper 格式 | `.venv` | `models/models--mobiuslabsgmbh--faster-whisper-large-v3-turbo/` |
 
-Qwen 的 `1.7B` / `0.6B` 表示模型参数规模。此项目使用官方 Qwen3-ASR 权重和 `windowed` 音频模式。请下载完整模型仓库中的配置、分词器和权重文件，不要只下载一个权重分片，也不要替换成其他流式微调模型。
+Confucius4-R2T2 是网易有道面向中英文实时语音识别发布的模型，官方说明与用法见 [项目仓库](https://github.com/netease-youdao/Confucius4-R2T2)。本项目通过 `qwen3-streaming` 后端加载它，与 Qwen 共用 `.venv-qwen` 环境，采用 `windowed` 音频模式；音频处理配置以本项目为准。
 
-参考实测：RTX 5060 Laptop 8 GB 上，1.7B 的约 52.8 秒中文合成音频推理约 28.6 秒，PyTorch 峰值预留显存约 4.21 GiB。8 GB 显存是已验证的配置；总占用还受系统和其他应用影响。这些数据无法保证所有设备或真实教室的效果。0.6B 的选项已接入，本项目尚未完成它的本机推理验证。
+Qwen 的 `1.7B` / `0.6B` 表示模型参数规模。请从所选模型的官方仓库下载完整配置、分词器和权重文件，不要只下载一个权重分片，也不要混用不同模型的文件。
 
-### 方案 A：Qwen GPU（默认）
+Qwen3-ASR-1.7B 参考实测：RTX 5060 Laptop 8 GB 上，约 52.8 秒中文合成音频推理约 28.6 秒，PyTorch 峰值预留显存约 4.21 GiB。8 GB 显存是该模型已验证的配置；总占用还受系统和其他应用影响。这些数据无法保证所有设备或真实教室的效果。0.6B 的选项已接入，本项目尚未完成它的本机推理验证。
+
+### 方案 A：Confucius4-R2T2 / Qwen GPU
 
 在项目根目录执行：
 
@@ -86,6 +89,30 @@ py -3.12 -m venv .venv-qwen
 
 最后一条需显示 `CUDA: True`。该方案使用 PyTorch CUDA 12.8 wheel、BF16、SDPA；请使用支持 BF16 的 GPU。显卡不兼容时可使用 SenseVoice CPU。
 
+#### Confucius4-R2T2（推荐、默认）
+
+下载完整权重：
+
+```powershell
+.\.venv-qwen\Scripts\python.exe -c "from huggingface_hub import snapshot_download; snapshot_download('netease-youdao/Confucius4-R2T2', local_dir='models/Confucius4-R2T2')"
+```
+
+确认 `models/Confucius4-R2T2/` 下有 `config.json`、分词器文件和完整的 `.safetensors` 权重。保持或将 `speech-profile.json` 替换为：
+
+```json
+{
+  "backend": "qwen3-streaming",
+  "model": "Confucius4-R2T2",
+  "device": "cuda",
+  "folder": "Confucius4-R2T2",
+  "report": "Confucius4-R2T2"
+}
+```
+
+其中 `folder` 指向 `models/` 下的权重目录，`report` 用于界面显示模型名称。完成环境和权重安装后，按后文启动应用；已有服务运行时，先暂停录音并等待整理完成，再在“音频转录模型”中选择 **Confucius4-R2T2 · GPU** 并点击“切换模型”。
+
+#### Qwen3-ASR（备选）
+
 下载 1.7B 完整权重（固定到本机验证过的 revision）：
 
 ```powershell
@@ -98,7 +125,13 @@ py -3.12 -m venv .venv-qwen
 .\.venv-qwen\Scripts\python.exe -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-ASR-0.6B', local_dir='models/Qwen3-ASR-0.6B')"
 ```
 
-下载后应能在对应目录找到 `config.json`、分词器文件和所有 `.safetensors` 分片。只有 0.6B 时，把 `speech-profile.json` 的 `model` 改成 `0.6B`，保留 `backend` 为 `qwen3-streaming`、`device` 为 `cuda`。
+下载后应能在对应目录找到 `config.json`、分词器文件和所有 `.safetensors` 分片。使用 Qwen 1.7B 时，将 `speech-profile.json` 整体替换为：
+
+```json
+{"backend":"qwen3-streaming","model":"1.7B","device":"cuda"}
+```
+
+使用 0.6B 时，将上面的 `model` 改为 `0.6B`。替换配置时一并移除 Confucius 的 `folder`、`report` 字段，让应用按 Qwen 模型名选择对应权重目录。
 
 ### 方案 B：SenseVoiceSmall CPU
 
@@ -192,7 +225,7 @@ Whisper GPU 还依赖 CTranslate2 和 NVIDIA CUDA/cuDNN DLL；依赖文件安装
 
 先完成目标环境和权重安装，再暂停所有页面的录音，等待笔记整理结束；选择“音频转录模型”并点击“切换模型”。等待实际状态显示新模型后继续录音。未安装的模型选项不可用；选择器的文件检测只用于判断安装材料是否存在，模型能否运行还取决于依赖与硬件。
 
-`start.ps1` 根据 `speech-profile.json` 选择环境：Qwen → `.venv-qwen`，SenseVoice → `.venv-sensevoice`，Whisper → `.venv`。`CLASSROOM_BACKEND`、`CLASSROOM_MODEL`、`CLASSROOM_DEVICE` 环境变量可覆盖配置；排查模型显示与预期不符时也要检查这些变量。
+`start.ps1` 根据 `speech-profile.json` 选择环境：Confucius / Qwen → `.venv-qwen`，SenseVoice → `.venv-sensevoice`，Whisper → `.venv`。`CLASSROOM_BACKEND`、`CLASSROOM_MODEL`、`CLASSROOM_DEVICE` 环境变量可覆盖配置；排查模型显示与预期不符时也要检查这些变量。
 
 ## 本地数据与隐私
 
